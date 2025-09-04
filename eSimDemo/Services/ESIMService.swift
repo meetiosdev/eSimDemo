@@ -52,7 +52,7 @@ public final class ESIMService: ObservableObject {
                 isSupported: false,
                 deviceModel: deviceModel,
                 iosVersion: iosVersion,
-                reason: "iOS 12.0 or later is required"
+                reason: "iOS 12.0 or later is required for eSIM functionality"
             )
             return
         }
@@ -63,11 +63,13 @@ public final class ESIMService: ObservableObject {
         // Check embedded SIM support (iOS 16.0+)
         var supportsEmbeddedSIM = true
         if #available(iOS 16.0, *) {
-            supportsEmbeddedSIM = CTCellularPlanProvisioning.supportsEmbeddedSIM()
+            let cellularPlanProvisioning = CTCellularPlanProvisioning()
+            supportsEmbeddedSIM = cellularPlanProvisioning.supportsEmbeddedSIM
         }
         
-        // Check device model compatibility
-        let isDeviceCompatible = checkDeviceModelCompatibility()
+        // Check device model compatibility using utilities
+        let deviceSupport = ESIMUtilities.checkESIMSupport()
+        let isDeviceCompatible = deviceSupport.isSupported
         
         let isSupported = supportsCellularPlan && supportsEmbeddedSIM && isDeviceCompatible
         
@@ -75,9 +77,9 @@ public final class ESIMService: ObservableObject {
             if !supportsCellularPlan {
                 return "Device does not support cellular plans"
             } else if !supportsEmbeddedSIM {
-                return "Device does not support embedded SIM"
+                return "Device does not support embedded SIM (iOS 16.0+ required)"
             } else if !isDeviceCompatible {
-                return "Device model does not support eSIM"
+                return deviceSupport.reason ?? "Device model does not support eSIM"
             }
             return "Unknown compatibility issue"
         }()
@@ -179,24 +181,27 @@ public final class ESIMService: ObservableObject {
     // MARK: - Private Methods
     
     private func checkEntitlementAvailability() async {
-        // In a real implementation, you would check if the entitlement is available
-        // This is a simplified check for demonstration
-        isEntitlementAvailable = true // Set to false if entitlement is not available
+        // Check if the app has the necessary entitlement for eSIM provisioning
+        // This is a simplified check - in production, you would verify the actual entitlement
+        let hasEntitlement = await checkForESIMEntitlement()
+        isEntitlementAvailable = hasEntitlement
+    }
+    
+    private func checkForESIMEntitlement() async -> Bool {
+        // In a real implementation, you would check the app's entitlements
+        // For now, we'll simulate the check
+        // In production, you would:
+        // 1. Check if the app has the com.apple.CommCenter.fine-grained entitlement
+        // 2. Verify the provisioning profile includes the eSIM entitlement
+        // 3. Check if the device is in a supported region
+        
+        // For demonstration, we'll return false to show the entitlement warning
+        // Set this to true if you have the proper entitlement
+        return false
     }
     
     private func checkDeviceModelCompatibility() -> Bool {
-        let deviceModel = UIDevice.current.model
-        let systemName = UIDevice.current.systemName
-        
-        // iPhone XR and later support eSIM
-        // This is a simplified check - in production, you'd use more sophisticated device detection
-        if systemName == "iPhone" {
-            // You would implement proper device model checking here
-            // For now, we'll assume all modern iPhones support eSIM
-            return true
-        }
-        
-        return false
+        return ESIMUtilities.checkESIMSupport().isSupported
     }
     
     private func validateRequest(_ request: ESIMProvisioningRequest) throws {
@@ -208,7 +213,29 @@ public final class ESIMService: ObservableObject {
             throw ESIMError.invalidRequest
         }
         
-        // Add more validation as needed
+        // Validate SM-DP+ address format
+        guard ESIMUtilities.validateSMDPAddress(request.smdpAddress) else {
+            throw ESIMError.invalidSMDPAddress
+        }
+        
+        // Validate Matching ID format
+        guard ESIMUtilities.validateMatchingID(request.matchingID) else {
+            throw ESIMError.invalidMatchingID
+        }
+        
+        // Validate EID if provided
+        if let eid = request.eid, !eid.isEmpty {
+            guard ESIMUtilities.validateEID(eid) else {
+                throw ESIMError.invalidEID
+            }
+        }
+        
+        // Validate ICCID if provided
+        if let iccid = request.iccid, !iccid.isEmpty {
+            guard ESIMUtilities.validateICCID(iccid) else {
+                throw ESIMError.invalidICCID
+            }
+        }
     }
     
     private func performProvisioning(with request: CTCellularPlanProvisioningRequest) async -> ESIMProvisioningResult {
@@ -234,7 +261,7 @@ public final class ESIMService: ObservableObject {
                         message: "Unknown error occurred during eSIM installation.",
                         error: .unknown("CoreTelephony returned .unknown")
                     )
-                @unknown default:
+                default:
                     provisioningResult = ESIMProvisioningResult(
                         isSuccess: false,
                         message: "Unexpected error occurred during eSIM installation.",

@@ -94,28 +94,69 @@ public enum ESIMProvisioningStep: String, CaseIterable {
 public enum ESIMError: LocalizedError, Equatable {
     case deviceNotSupported
     case invalidRequest
+    case invalidSMDPAddress
+    case invalidMatchingID
+    case invalidEID
+    case invalidICCID
     case networkError(String)
     case provisioningFailed(String)
     case entitlementRequired
     case unsupportedIOSVersion
+    case cellularPlanNotSupported
+    case embeddedSIMNotSupported
     case unknown(String)
     
     public var errorDescription: String? {
         switch self {
         case .deviceNotSupported:
-            return "This device does not support eSIM functionality"
+            return "This device does not support eSIM functionality. eSIM is supported on iPhone XS, XS Max, XR and later models."
         case .invalidRequest:
             return "Invalid provisioning request parameters"
+        case .invalidSMDPAddress:
+            return "Invalid SM-DP+ address format. Please enter a valid hostname or IP address."
+        case .invalidMatchingID:
+            return "Invalid Matching ID format. Please enter a valid activation code (minimum 8 characters)."
+        case .invalidEID:
+            return "Invalid EID format. EID must be 32 hexadecimal characters."
+        case .invalidICCID:
+            return "Invalid ICCID format. ICCID must be 19-20 digits."
         case .networkError(let message):
             return "Network error: \(message)"
         case .provisioningFailed(let message):
             return "eSIM provisioning failed: \(message)"
         case .entitlementRequired:
-            return "eSIM entitlement required. Contact Apple Developer Support"
+            return "eSIM entitlement required. This app needs special permission from Apple to provision eSIM profiles directly. Contact Apple Developer Support for entitlement approval."
         case .unsupportedIOSVersion:
             return "iOS 12.0 or later is required for eSIM functionality"
+        case .cellularPlanNotSupported:
+            return "This device does not support cellular plans"
+        case .embeddedSIMNotSupported:
+            return "This device does not support embedded SIM functionality"
         case .unknown(let message):
             return "Unknown error: \(message)"
+        }
+    }
+    
+    public var recoverySuggestion: String? {
+        switch self {
+        case .deviceNotSupported:
+            return "Please use a device that supports eSIM (iPhone XS or later) or generate a QR code for manual activation."
+        case .invalidSMDPAddress:
+            return "Check the SM-DP+ address with your carrier. It should be a valid hostname like 'rsp.truphone.com' or an IP address."
+        case .invalidMatchingID:
+            return "Verify the activation code with your carrier. It should be at least 8 characters long."
+        case .invalidEID:
+            return "EID should be exactly 32 hexadecimal characters (0-9, A-F). Leave empty if not provided by your carrier."
+        case .invalidICCID:
+            return "ICCID should be 19-20 digits. Leave empty if not provided by your carrier."
+        case .entitlementRequired:
+            return "Use the QR code generation feature to manually activate the eSIM through Settings > Cellular > Add Cellular Plan."
+        case .cellularPlanNotSupported:
+            return "This device cannot manage cellular plans. Please use a different device."
+        case .embeddedSIMNotSupported:
+            return "This device does not support embedded SIM cards. Please use a device with eSIM capability."
+        default:
+            return "Please try again or contact support if the problem persists."
         }
     }
 }

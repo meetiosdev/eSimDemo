@@ -2,52 +2,122 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <!-- Standard iOS App Configuration -->
+    <key>CFBundleDevelopmentRegion</key>
+    <string>$(DEVELOPMENT_LANGUAGE)</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    <key>CFBundlePackageType</key>
+    <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>UIApplicationSceneManifest</key>
+    <dict>
+        <key>UIApplicationSupportsMultipleScenes</key>
+        <true/>
+        <key>UISceneConfigurations</key>
+        <dict>
+            <key>UIWindowSceneSessionRoleApplication</key>
+            <array>
+                <dict>
+                    <key>UISceneConfigurationName</key>
+                    <string>Default Configuration</string>
+                    <key>UISceneDelegateClassName</key>
+                    <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+                </dict>
+            </array>
+        </dict>
+    </dict>
+    <key>UIApplicationSupportsIndirectInputEvents</key>
+    <true/>
+    <key>UILaunchScreen</key>
+    <dict/>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>armv7</string>
+    </array>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    
     <!-- eSIM Configuration -->
-        <key>CarrierDescriptors</key>
-        <array>
-            <dict>
-                <key>MCC</key>
-                <string>310</string>
-                <key>MNC</key>
-                <string>410</string>
-                <key>GID1</key>
-                <string>ffffffffffffffffffff</string>
-                <key>GID2</key>
-                <string>ffffffffffffffffffff</string>
-            </dict>
-        </array>
-        
-        <!-- Network Security -->
-        <key>com.apple.security.network.server</key>
-        <true/>
-        <key>com.apple.security.network.client</key>
-        <true/>
-        
-        <!-- eSIM Entitlements -->
-        <key>com.apple.CommCenter.fine-grained</key>
-        <array>
-            <string>spi</string>
-            <string>sim-authentication</string>
-            <string>identity</string>
-            <string>public-cellular-plan</string>
-        </array>
-        
-        <!-- Additional Security -->
-        <key>com.apple.wlan.authentication</key>
-        <true/>
-        <key>keychain-access-groups</key>
-        <array>
-            <string>apple</string>
-            <string>com.apple.identities</string>
-            <string>com.apple.certificates</string>
-        </array>
-        <key>com.apple.private.system-keychain</key>
-        <true/>
-        
-        <!-- Privacy Usage Descriptions -->
-        <key>NSCameraUsageDescription</key>
-        <string>Access camera for QR code fallback scanning during eSIM setup.</string>
-        <key>NSLocationWhenInUseUsageDescription</key>
-        <string>Access location to suggest relevant carrier plans.</string>
+    <key>CarrierDescriptors</key>
+    <array>
+        <dict>
+            <key>MCC</key>
+            <string>310</string>
+            <key>MNC</key>
+            <string>410</string>
+            <key>GID1</key>
+            <string>ffffffffffffffffffff</string>
+            <key>GID2</key>
+            <string>ffffffffffffffffffff</string>
+        </dict>
+        <dict>
+            <key>MCC</key>
+            <string>234</string>
+            <key>MNC</key>
+            <string>15</string>
+        </dict>
+    </array>
+    
+    <!-- Network Security -->
+    <key>com.apple.security.network.server</key>
+    <true/>
+    <key>com.apple.security.network.client</key>
+    <true/>
+    
+    <!-- eSIM Entitlements -->
+    <key>com.apple.CommCenter.fine-grained</key>
+    <array>
+        <string>spi</string>
+        <string>sim-authentication</string>
+        <string>identity</string>
+        <string>public-cellular-plan</string>
+    </array>
+    
+    <!-- Additional Security -->
+    <key>com.apple.wlan.authentication</key>
+    <true/>
+    <key>keychain-access-groups</key>
+    <array>
+        <string>apple</string>
+        <string>com.apple.identities</string>
+        <string>com.apple.certificates</string>
+    </array>
+    <key>com.apple.private.system-keychain</key>
+    <true/>
+    
+    <!-- Privacy Usage Descriptions -->
+    <key>NSCameraUsageDescription</key>
+    <string>Access camera for QR code scanning during eSIM setup.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Access location to suggest relevant carrier plans.</string>
+    
+    <!-- eSIM Specific Configuration -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>background-processing</string>
+    </array>
 </dict>
 </plist>

@@ -46,6 +46,19 @@ struct ESIMProvisioningView: View {
                         .onChange(of: viewModel.smdpAddress) { _, _ in
                             viewModel.updateInputValidation()
                         }
+                    
+                    // Validation feedback
+                    if !viewModel.smdpAddress.isEmpty && !ESIMUtilities.validateSMDPAddress(viewModel.smdpAddress) {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                                .font(.caption)
+                            Text("Invalid SM-DP+ address format")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                            Spacer()
+                        }
+                    }
                 }
                 
                 // Matching ID
@@ -61,6 +74,19 @@ struct ESIMProvisioningView: View {
                         .onChange(of: viewModel.matchingID) { _, _ in
                             viewModel.updateInputValidation()
                         }
+                    
+                    // Validation feedback
+                    if !viewModel.matchingID.isEmpty && !ESIMUtilities.validateMatchingID(viewModel.matchingID) {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                                .font(.caption)
+                            Text("Invalid Matching ID format (minimum 8 characters)")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                            Spacer()
+                        }
+                    }
                 }
                 
                 // Optional Fields Section
@@ -88,6 +114,22 @@ struct ESIMProvisioningView: View {
                                 .textFieldStyle(.roundedBorder)
                                 .autocapitalization(.none)
                                 .disableAutocorrection(true)
+                                .onChange(of: viewModel.eid) { _, _ in
+                                    viewModel.updateInputValidation()
+                                }
+                            
+                            // Validation feedback
+                            if !viewModel.eid.isEmpty && !ESIMUtilities.validateEID(viewModel.eid) {
+                                HStack {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(.red)
+                                        .font(.caption)
+                                    Text("Invalid EID format (32 hexadecimal characters)")
+                                        .font(.caption)
+                                        .foregroundColor(.red)
+                                    Spacer()
+                                }
+                            }
                         }
                         
                         // ICCID
@@ -100,6 +142,22 @@ struct ESIMProvisioningView: View {
                                 .textFieldStyle(.roundedBorder)
                                 .autocapitalization(.none)
                                 .disableAutocorrection(true)
+                                .onChange(of: viewModel.iccid) { _, _ in
+                                    viewModel.updateInputValidation()
+                                }
+                            
+                            // Validation feedback
+                            if !viewModel.iccid.isEmpty && !ESIMUtilities.validateICCID(viewModel.iccid) {
+                                HStack {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(.red)
+                                        .font(.caption)
+                                    Text("Invalid ICCID format (19-20 digits)")
+                                        .font(.caption)
+                                        .foregroundColor(.red)
+                                    Spacer()
+                                }
+                            }
                         }
                     }
                     .padding(.top, 8)

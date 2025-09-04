@@ -76,16 +76,38 @@ struct ESIMStatusView: View {
                         
                         // Error Details
                         if let error = result.error {
-                            HStack {
-                                Image(systemName: "exclamationmark.triangle")
-                                    .foregroundColor(.orange)
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Image(systemName: "exclamationmark.triangle")
+                                        .foregroundColor(.orange)
+                                    
+                                    Text("Error Details:")
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.secondary)
+                                    
+                                    Spacer()
+                                }
                                 
                                 Text(error.localizedDescription)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                     .multilineTextAlignment(.leading)
                                 
-                                Spacer()
+                                // Recovery suggestion
+                                if let recoverySuggestion = error.recoverySuggestion {
+                                    HStack {
+                                        Image(systemName: "lightbulb")
+                                            .foregroundColor(.blue)
+                                        
+                                        Text(recoverySuggestion)
+                                            .font(.caption)
+                                            .foregroundColor(.blue)
+                                            .multilineTextAlignment(.leading)
+                                        
+                                        Spacer()
+                                    }
+                                }
                             }
                         }
                     }

@@ -10,6 +10,7 @@ import SwiftUI
 
 /// ViewModel responsible for managing eSIM UI state and business logic
 @Observable
+@MainActor
 public final class ESIMViewModel {
     
     // MARK: - Published Properties
@@ -54,8 +55,8 @@ public final class ESIMViewModel {
     
     // MARK: - Initialization
     
-    public init(esimService: ESIMService = ESIMService()) {
-        self.esimService = esimService
+    public init(esimService: ESIMService? = nil) {
+        self.esimService = esimService ?? ESIMService()
         setupInputValidation()
     }
     
@@ -130,7 +131,12 @@ public final class ESIMViewModel {
     }
     
     private func validateInputs() {
-        isInputValid = !smdpAddress.isEmpty && !matchingID.isEmpty
+        let isSMDPValid = ESIMUtilities.validateSMDPAddress(smdpAddress)
+        let isMatchingIDValid = ESIMUtilities.validateMatchingID(matchingID)
+        let isEIDValid = eid.isEmpty || ESIMUtilities.validateEID(eid)
+        let isICCIDValid = iccid.isEmpty || ESIMUtilities.validateICCID(iccid)
+        
+        isInputValid = isSMDPValid && isMatchingIDValid && isEIDValid && isICCIDValid
     }
     
     private var currentRequest: ESIMProvisioningRequest {
