@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0FBBCF462E69A85A008FE0F0 /* ESIMUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF3D2E69A85A008FE0F0 /* ESIMUtilities.swift */; };
+		0FBBCF472E69A85A008FE0F0 /* ESIMModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF392E69A85A008FE0F0 /* ESIMModels.swift */; };
+		0FBBCF482E69A85A008FE0F0 /* ESIMQRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF432E69A85A008FE0F0 /* ESIMQRCodeView.swift */; };
+		0FBBCF492E69A85A008FE0F0 /* ESIMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF3B2E69A85A008FE0F0 /* ESIMService.swift */; };
+		0FBBCF4A2E69A85A008FE0F0 /* ESIMViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF3F2E69A85A008FE0F0 /* ESIMViewModel.swift */; };
+		0FBBCF4B2E69A85A008FE0F0 /* ESIMCompatibilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF412E69A85A008FE0F0 /* ESIMCompatibilityView.swift */; };
+		0FBBCF4C2E69A85A008FE0F0 /* ESIMProvisioningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF422E69A85A008FE0F0 /* ESIMProvisioningView.swift */; };
+		0FBBCF4D2E69A85A008FE0F0 /* ESIMStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF442E69A85A008FE0F0 /* ESIMStatusView.swift */; };
 		0FC605CA2E699ECF00BBE9F9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0FC605C42E699ECF00BBE9F9 /* Preview Assets.xcassets */; };
 		0FC605CB2E699ECF00BBE9F9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0FC605C62E699ECF00BBE9F9 /* Assets.xcassets */; };
 		0FC605CC2E699ECF00BBE9F9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC605C72E699ECF00BBE9F9 /* ContentView.swift */; };
@@ -14,6 +22,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0FBBCF392E69A85A008FE0F0 /* ESIMModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMModels.swift; sourceTree = "<group>"; };
+		0FBBCF3B2E69A85A008FE0F0 /* ESIMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMService.swift; sourceTree = "<group>"; };
+		0FBBCF3D2E69A85A008FE0F0 /* ESIMUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMUtilities.swift; sourceTree = "<group>"; };
+		0FBBCF3F2E69A85A008FE0F0 /* ESIMViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMViewModel.swift; sourceTree = "<group>"; };
+		0FBBCF412E69A85A008FE0F0 /* ESIMCompatibilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMCompatibilityView.swift; sourceTree = "<group>"; };
+		0FBBCF422E69A85A008FE0F0 /* ESIMProvisioningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMProvisioningView.swift; sourceTree = "<group>"; };
+		0FBBCF432E69A85A008FE0F0 /* ESIMQRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMQRCodeView.swift; sourceTree = "<group>"; };
+		0FBBCF442E69A85A008FE0F0 /* ESIMStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMStatusView.swift; sourceTree = "<group>"; };
+		0FBBCF4E2E69AA16008FE0F0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0FC605B32E699E5400BBE9F9 /* eSimDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = eSimDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FC605C42E699ECF00BBE9F9 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		0FC605C62E699ECF00BBE9F9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -32,6 +49,49 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0FBBCF3A2E69A85A008FE0F0 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				0FBBCF392E69A85A008FE0F0 /* ESIMModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		0FBBCF3C2E69A85A008FE0F0 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				0FBBCF3B2E69A85A008FE0F0 /* ESIMService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		0FBBCF3E2E69A85A008FE0F0 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				0FBBCF3D2E69A85A008FE0F0 /* ESIMUtilities.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		0FBBCF402E69A85A008FE0F0 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				0FBBCF3F2E69A85A008FE0F0 /* ESIMViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		0FBBCF452E69A85A008FE0F0 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0FBBCF412E69A85A008FE0F0 /* ESIMCompatibilityView.swift */,
+				0FBBCF422E69A85A008FE0F0 /* ESIMProvisioningView.swift */,
+				0FBBCF432E69A85A008FE0F0 /* ESIMQRCodeView.swift */,
+				0FBBCF442E69A85A008FE0F0 /* ESIMStatusView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		0FC605AA2E699E5400BBE9F9 = {
 			isa = PBXGroup;
 			children = (
@@ -59,10 +119,16 @@
 		0FC605C92E699ECF00BBE9F9 /* eSimDemo */ = {
 			isa = PBXGroup;
 			children = (
+				0FBBCF4E2E69AA16008FE0F0 /* Info.plist */,
 				0FC605C52E699ECF00BBE9F9 /* Preview Content */,
 				0FC605C62E699ECF00BBE9F9 /* Assets.xcassets */,
 				0FC605C72E699ECF00BBE9F9 /* ContentView.swift */,
 				0FC605C82E699ECF00BBE9F9 /* eSimDemoApp.swift */,
+				0FBBCF3A2E69A85A008FE0F0 /* Models */,
+				0FBBCF3C2E69A85A008FE0F0 /* Services */,
+				0FBBCF3E2E69A85A008FE0F0 /* Utilities */,
+				0FBBCF402E69A85A008FE0F0 /* ViewModels */,
+				0FBBCF452E69A85A008FE0F0 /* Views */,
 			);
 			path = eSimDemo;
 			sourceTree = "<group>";
@@ -141,6 +207,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				0FC605CC2E699ECF00BBE9F9 /* ContentView.swift in Sources */,
+				0FBBCF462E69A85A008FE0F0 /* ESIMUtilities.swift in Sources */,
+				0FBBCF472E69A85A008FE0F0 /* ESIMModels.swift in Sources */,
+				0FBBCF482E69A85A008FE0F0 /* ESIMQRCodeView.swift in Sources */,
+				0FBBCF492E69A85A008FE0F0 /* ESIMService.swift in Sources */,
+				0FBBCF4A2E69A85A008FE0F0 /* ESIMViewModel.swift in Sources */,
+				0FBBCF4B2E69A85A008FE0F0 /* ESIMCompatibilityView.swift in Sources */,
+				0FBBCF4C2E69A85A008FE0F0 /* ESIMProvisioningView.swift in Sources */,
+				0FBBCF4D2E69A85A008FE0F0 /* ESIMStatusView.swift in Sources */,
 				0FC605CD2E699ECF00BBE9F9 /* eSimDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -278,6 +352,7 @@
 				DEVELOPMENT_TEAM = X3YKR6M53J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = eSimDemo/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -307,6 +382,7 @@
 				DEVELOPMENT_TEAM = X3YKR6M53J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = eSimDemo/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

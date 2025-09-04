@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- eSIM Configuration -->
+        <key>CarrierDescriptors</key>
+        <array>
+            <dict>
+                <key>MCC</key>
+                <string>310</string>
+                <key>MNC</key>
+                <string>410</string>
+                <key>GID1</key>
+                <string>ffffffffffffffffffff</string>
+                <key>GID2</key>
+                <string>ffffffffffffffffffff</string>
+            </dict>
+        </array>
+        
+        <!-- Network Security -->
+        <key>com.apple.security.network.server</key>
+        <true/>
+        <key>com.apple.security.network.client</key>
+        <true/>
+        
+        <!-- eSIM Entitlements -->
+        <key>com.apple.CommCenter.fine-grained</key>
+        <array>
+            <string>spi</string>
+            <string>sim-authentication</string>
+            <string>identity</string>
+            <string>public-cellular-plan</string>
+        </array>
+        
+        <!-- Additional Security -->
+        <key>com.apple.wlan.authentication</key>
+        <true/>
+        <key>keychain-access-groups</key>
+        <array>
+            <string>apple</string>
+            <string>com.apple.identities</string>
+            <string>com.apple.certificates</string>
+        </array>
+        <key>com.apple.private.system-keychain</key>
+        <true/>
+        
+        <!-- Privacy Usage Descriptions -->
+        <key>NSCameraUsageDescription</key>
+        <string>Access camera for QR code fallback scanning during eSIM setup.</string>
+        <key>NSLocationWhenInUseUsageDescription</key>
+        <string>Access location to suggest relevant carrier plans.</string>
+</dict>
+</plist>
