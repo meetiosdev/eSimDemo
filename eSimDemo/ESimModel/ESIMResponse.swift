@@ -10,7 +10,7 @@
 import Foundation
 
 /// Represents the top-level response structure for eSIM data
-struct ESIMResponse: Codable {
+struct ESIMResponse: Codable, Equatable {
     let response: ProfileResult
     
     enum CodingKeys: String, CodingKey {
@@ -18,7 +18,7 @@ struct ESIMResponse: Codable {
     }
 }
 
-struct ProfileResult: Codable {
+struct ProfileResult: Codable, Equatable {
     var eSim: ESIMProfile
     
     private enum CodingKeys: String, CodingKey {
@@ -27,7 +27,7 @@ struct ProfileResult: Codable {
 }
 
 /// Represents the detailed eSIM information
-struct ESIMProfile: Codable {
+struct ESIMProfile: Codable, Equatable {
     /// Integrated Circuit Card Identifier
     var iccid: String
 
@@ -89,7 +89,7 @@ struct ESIMProfile: Codable {
 }
 
 /// Represents the policy for eSIM profile reuse
-struct ProfileReusePolicy: Codable {
+struct ProfileReusePolicy: Codable, Equatable {
     /// Type of reuse policy
     var reuseType: String
 

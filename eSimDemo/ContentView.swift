@@ -12,6 +12,8 @@ struct ContentView: View {
     @State private var isInstalling = false
     @State private var installationResult: ESIMInstallationResult?
     @State private var showInstallationAlert = false
+    @State private var qrCodeImage: UIImage?
+    @State private var showQRCode = false
     
     var body: some View {
         NavigationView {
@@ -83,6 +85,91 @@ struct ContentView: View {
                                 DetailRow(label: "Reuse Type", value: esimResponse.response.eSim.profileReusePolicy.reuseType)
                                 DetailRow(label: "Max Count", value: esimResponse.response.eSim.profileReusePolicy.maxCount)
                             }
+                            
+                            // eSIM Support Debug Info
+                            DetailSection(title: "eSIM Support Debug") {
+                                let supportInfo = ESIMManager.shared.getESIMSupportInfo()
+                                DetailRow(label: "API Supported", value: (supportInfo["apiSupported"] as? Bool) == true ? "Yes" : "No")
+                                DetailRow(label: "Device Capable", value: (supportInfo["deviceCapable"] as? Bool) == true ? "Yes" : "No")
+                                DetailRow(label: "Overall Supported", value: (supportInfo["overallSupported"] as? Bool) == true ? "Yes" : "No")
+                                DetailRow(label: "Entitlements", value: supportInfo["entitlementsStatus"] as? String ?? "Unknown")
+                                DetailRow(label: "iOS Version", value: supportInfo["iosVersion"] as? String ?? "Unknown")
+                                DetailRow(label: "Device Model", value: supportInfo["deviceModel"] as? String ?? "Unknown")
+                            }
+                            
+                            // QR Code Section
+                            DetailSection(title: "QR Code") {
+                                VStack(spacing: 12) {
+                                    if let qrImage = qrCodeImage {
+                                        Image(uiImage: qrImage)
+                                            .interpolation(.none)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 200, height: 200)
+                                            .background(Color.white)
+                                            .cornerRadius(8)
+                                            .shadow(radius: 4)
+                                    } else {
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(width: 200, height: 200)
+                                            .overlay(
+                                                VStack {
+                                                    Image(systemName: "qrcode")
+                                                        .font(.system(size: 40))
+                                                        .foregroundColor(.gray)
+                                                    Text("QR Code")
+                                                        .font(.caption)
+                                                        .foregroundColor(.gray)
+                                                }
+                                            )
+                                    }
+                                    
+                                    HStack(spacing: 16) {
+                                        Button(action: generateQRCode) {
+                                            HStack {
+                                                Image(systemName: "qrcode")
+                                                Text(qrCodeImage == nil ? "Generate QR Code" : "Regenerate QR Code")
+                                            }
+                                            .font(.subheadline)
+                                            .foregroundColor(.blue)
+                                        }
+                                        
+                                        if qrCodeImage != nil {
+                                            Button(action: shareQRCode) {
+                                                HStack {
+                                                    Image(systemName: "square.and.arrow.up")
+                                                    Text("Share")
+                                                }
+                                                .font(.subheadline)
+                                                .foregroundColor(.green)
+                                            }
+                                        }
+                                    }
+                                    
+                                    if let lpaComponents = parseActivationCode(esimResponse.response.eSim.activationCode) {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text("LPA Components:")
+                                                .font(.caption)
+                                                .fontWeight(.medium)
+                                                .foregroundColor(.secondary)
+                                            
+                                            if let smdp = lpaComponents.smdp {
+                                                Text("SMDP: \(smdp)")
+                                                    .font(.caption)
+                                                    .foregroundColor(.primary)
+                                            }
+                                            
+                                            if let token = lpaComponents.token {
+                                                Text("Token: \(token)")
+                                                    .font(.caption)
+                                                    .foregroundColor(.primary)
+                                            }
+                                        }
+                                        .padding(.top, 4)
+                                    }
+                                }
+                            }
                         }
                         .padding()
                         
@@ -136,6 +223,12 @@ struct ContentView: View {
                 // Auto-load data when view appears
                 jsonLoader.loadESIMData()
             }
+            .onChange(of: jsonLoader.esimResponse) { _ in
+                // Auto-generate QR code when eSIM data is loaded
+                if jsonLoader.esimResponse != nil {
+                    generateQRCode()
+                }
+            }
             .alert("eSIM Installation", isPresented: $showInstallationAlert) {
                 Button("OK") {
                     installationResult = nil
@@ -161,6 +254,54 @@ struct ContentView: View {
                 self.installationResult = result
                 self.showInstallationAlert = true
             }
+        }
+    }
+    
+    // MARK: - QR Code Generation
+    private func generateQRCode() {
+        guard let esimResponse = jsonLoader.esimResponse else { return }
+        
+        let activationCode = esimResponse.response.eSim.activationCode
+        print("ContentView: Generating QR code for activation code: \(activationCode)")
+        
+        if let qrImage = ESIMManager.shared.generateESIMQRCode(activationCode: activationCode, scale: 8) {
+            qrCodeImage = qrImage
+            print("ContentView: QR code generated successfully")
+        } else {
+            print("ContentView: Failed to generate QR code")
+        }
+    }
+    
+    // MARK: - LPA Parsing
+    private func parseActivationCode(_ activationCode: String) -> LPAComponents? {
+        let lpaComponents = ESIMManager.shared.parseLPA(activationCode)
+        return lpaComponents.isValid ? lpaComponents : nil
+    }
+    
+    // MARK: - QR Code Sharing
+    private func shareQRCode() {
+        guard let qrImage = qrCodeImage,
+              let esimResponse = jsonLoader.esimResponse else { return }
+        
+        let activityViewController = UIActivityViewController(
+            activityItems: [
+                qrImage,
+                "eSIM Activation Code: \(esimResponse.response.eSim.activationCode)"
+            ],
+            applicationActivities: nil
+        )
+        
+        // For iPad
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            activityViewController.popoverPresentationController?.sourceView = window
+            activityViewController.popoverPresentationController?.sourceRect = CGRect(x: window.bounds.midX, y: window.bounds.midY, width: 0, height: 0)
+        }
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first,
+           let rootViewController = window.rootViewController {
+            rootViewController.present(activityViewController, animated: true)
         }
     }
     
