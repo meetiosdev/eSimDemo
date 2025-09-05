@@ -1,140 +1,244 @@
 //
 //  ContentView.swift
-//  eSimDemo
+//  EsimDemo
 //
-//  Created by Swarajmeet Singh on 04/09/25.
+//  Created by Swarajmeet Singh on 05/09/25.
 //
 
 import SwiftUI
 
-/// Main view of the eSIM Demo application
 struct ContentView: View {
-    
-    // MARK: - Properties
-    
-    @State private var viewModel = ESIMViewModel()
-    @State private var showingQRCode = false
-    
-    // MARK: - Body
+    @StateObject private var jsonLoader = JSONLoader()
+    @State private var isInstalling = false
+    @State private var installationResult: ESIMInstallationResult?
+    @State private var showInstallationAlert = false
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Header
-                    headerView
-                    
-                    // Compatibility Status
-                    ESIMCompatibilityView(
-                        compatibilityStatus: viewModel.compatibilityStatus,
-                        onRefresh: {
-                            await viewModel.refreshCompatibility()
+            VStack(spacing: 20) {
+                if jsonLoader.isLoading {
+                    ProgressView("Loading eSIM data...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if let errorMessage = jsonLoader.errorMessage {
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 50))
+                            .foregroundColor(.red)
+                        Text("Error")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        Text(errorMessage)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.secondary)
+                        Button("Retry") {
+                            jsonLoader.loadESIMData()
                         }
-                    )
-                    
-                    // Provisioning Section
-                    if viewModel.compatibilityStatus.isSupported {
-                        ESIMProvisioningView(viewModel: viewModel)
+                        .buttonStyle(.borderedProminent)
                     }
-                    
-                    // Status Section
-                    if viewModel.provisioningState.isProvisioning || viewModel.provisioningState.result != nil {
-                        ESIMStatusView(
-                            provisioningState: viewModel.provisioningState,
-                            onReset: {
-                                viewModel.resetProvisioning()
+                    .padding()
+                } else if let esimResponse = jsonLoader.esimResponse {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            // Header
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("eSIM Profile Details")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                
+                                HStack {
+                                    Circle()
+                                        .fill(esimResponse.response.eSim.state == "ERROR" ? Color.red : Color.green)
+                                        .frame(width: 12, height: 12)
+                                    Text(esimResponse.response.eSim.state)
+                                        .font(.headline)
+                                        .foregroundColor(esimResponse.response.eSim.state == "ERROR" ? .red : .green)
+                                }
                             }
-                        )
+                            .padding(.bottom)
+                            
+                            // Basic Information
+                            DetailSection(title: "Basic Information") {
+                                DetailRow(label: "ICCID", value: esimResponse.response.eSim.iccid)
+                                DetailRow(label: "IMSI", value: String(esimResponse.response.eSim.imsi))
+                                DetailRow(label: "EID", value: esimResponse.response.eSim.eid)
+                                DetailRow(label: "Activation Code", value: esimResponse.response.eSim.activationCode)
+                            }
+                            
+                            // Status Information
+                            DetailSection(title: "Status") {
+                                DetailRow(label: "State Message", value: esimResponse.response.eSim.stateMessage)
+                                DetailRow(label: "Last Operation", value: esimResponse.response.eSim.lastOperationDate.toHumanReadableDate)
+                                DetailRow(label: "Release Date", value: esimResponse.response.eSim.releaseDate.toHumanReadableDate)
+                            }
+                            
+                            // Configuration
+                            DetailSection(title: "Configuration") {
+                                DetailRow(label: "Reuse Enabled", value: esimResponse.response.eSim.reuseEnabled ? "Yes" : "No")
+                                DetailRow(label: "CC Required", value: esimResponse.response.eSim.ccRequired ? "Yes" : "No")
+                                DetailRow(label: "Reuse Remaining", value: String(esimResponse.response.eSim.reuseRemainingCount))
+                            }
+                            
+                            // Reuse Policy
+                            DetailSection(title: "Reuse Policy") {
+                                DetailRow(label: "Reuse Type", value: esimResponse.response.eSim.profileReusePolicy.reuseType)
+                                DetailRow(label: "Max Count", value: esimResponse.response.eSim.profileReusePolicy.maxCount)
+                            }
+                        }
+                        .padding()
+                        
+                        // eSIM Install Button
+                        VStack(spacing: 12) {
+                            Divider()
+                                .padding(.horizontal)
+                            
+                            Button(action: installESIM) {
+                                HStack {
+                                    if isInstalling {
+                                        ProgressView()
+                                            .scaleEffect(0.8)
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    } else {
+                                        Image(systemName: "simcard.fill")
+                                    }
+                                    Text(isInstalling ? "Installing eSIM..." : "Install eSIM")
+                                        .fontWeight(.semibold)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(esimResponse.response.eSim.state == "ERROR" ? Color.red : Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                            }
+                            .disabled(isInstalling || esimResponse.response.eSim.activationCode.isEmpty)
+                            .padding(.horizontal)
+                        }
                     }
-                    
-                    // Entitlement Warning
-                    if !viewModel.isEntitlementAvailable {
-                        entitlementWarningView
+                } else {
+                    VStack(spacing: 16) {
+                        Image(systemName: "simcard")
+                            .font(.system(size: 50))
+                            .foregroundColor(.blue)
+                        Text("eSIM Demo")
+                            .font(.title)
+                            .fontWeight(.bold)
+                        Text("Tap the button below to load eSIM data")
+                            .foregroundColor(.secondary)
+                        Button("Load eSIM Data") {
+                            jsonLoader.loadESIMData()
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .padding()
             }
             .navigationTitle("eSIM Demo")
-            .navigationBarTitleDisplayMode(.large)
-            .sheet(isPresented: $showingQRCode) {
-                if let qrCodeData = viewModel.qrCodeData {
-                    ESIMQRCodeView(
-                        qrCodeData: qrCodeData,
-                        onDismiss: {
-                            showingQRCode = false
-                            viewModel.dismissQRCode()
-                        }
-                    )
+            .onAppear {
+                // Auto-load data when view appears
+                jsonLoader.loadESIMData()
+            }
+            .alert("eSIM Installation", isPresented: $showInstallationAlert) {
+                Button("OK") {
+                    installationResult = nil
+                }
+            } message: {
+                if let result = installationResult {
+                    Text(installationMessage(for: result))
                 }
             }
-            .alert("Alert", isPresented: $viewModel.showAlert) {
-                Button("OK") { }
-            } message: {
-                Text(viewModel.alertMessage)
-            }
-            .onChange(of: viewModel.showQRCode) { _, newValue in
-                showingQRCode = newValue
+        }
+    }
+    
+    // MARK: - eSIM Installation
+    private func installESIM() {
+        guard let esimResponse = jsonLoader.esimResponse else { return }
+        
+        isInstalling = true
+        installationResult = nil
+        
+        ESIMManager.shared.installESIM(activationCode: esimResponse.response.eSim.activationCode) { result in
+            DispatchQueue.main.async {
+                self.isInstalling = false
+                self.installationResult = result
+                self.showInstallationAlert = true
             }
         }
     }
     
-    // MARK: - View Components
-    
-    private var headerView: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "simcard.2")
-                .font(.system(size: 48))
-                .foregroundColor(.blue)
-            
-            Text("eSIM Provisioning Demo")
-                .font(.title)
-                .fontWeight(.bold)
-            
-            Text("Test eSIM installation and management")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+    private func installationMessage(for result: ESIMInstallationResult) -> String {
+        switch result.status {
+        case .success:
+            return "✅ eSIM installed successfully!\n\n\(result.message ?? "Installation completed.")"
+        case .failure:
+            return "❌ Installation failed!\n\n\(result.message ?? "Unknown error occurred.")"
+        case .userCancelled:
+            return "⚠️ Installation cancelled by user.\n\n\(result.message ?? "User cancelled the installation.")"
+        case .notSupportedOrPermitted:
+            return "❌ eSIM not supported!\n\n\(result.message ?? "eSIM functionality is not available on this device.")"
+        case .invalidActivationCode:
+            return "❌ Invalid activation code!\n\n\(result.message ?? "The provided activation code is invalid.")"
+        case .esimDisabledOrUnavailable:
+            return "❌ eSIM unavailable!\n\n\(result.message ?? "eSIM is disabled or unavailable.")"
+        case .networkError:
+            return "❌ Network error!\n\n\(result.message ?? "Please check your internet connection.")"
+        case .storageFull:
+            return "❌ Storage full!\n\n\(result.message ?? "Device storage is full.")"
+        case .timeout:
+            return "❌ Installation timeout!\n\n\(result.message ?? "Installation took too long to complete.")"
+        case .unknownError:
+            return "❌ Unknown error!\n\n\(result.message ?? "An unexpected error occurred.")"
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground))
-                .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-        )
-    }
-    
-    private var entitlementWarningView: some View {
-        VStack(spacing: 12) {
-            HStack {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundColor(.orange)
-                
-                Text("Entitlement Required")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                
-                Spacer()
-            }
-            
-            Text("This app requires the eSIM Cellular Plan entitlement from Apple to provision eSIM profiles directly. Without this entitlement, you can still generate QR codes for manual activation.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.leading)
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.orange.opacity(0.1))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-                )
-        )
     }
 }
 
-// MARK: - Preview
+struct DetailSection<Content: View>: View {
+    let title: String
+    let content: Content
+    
+    init(title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.primary)
+            
+            VStack(spacing: 4) {
+                content
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(8)
+        }
+    }
+}
+
+struct DetailRow: View {
+    let label: String
+    let value: String
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            Text(label + ":")
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.secondary)
+                .frame(width: 120, alignment: .leading)
+            
+            Text(value)
+                .font(.subheadline)
+                .foregroundColor(.primary)
+                .multilineTextAlignment(.trailing)
+            
+            Spacer()
+        }
+    }
+}
 
 #Preview {
     ContentView()
 }
+
+//com.apple.developer.coretelephony.sim-inserted

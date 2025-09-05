@@ -1,14 +1,14 @@
 //
-//  eSimDemoApp.swift
-//  eSimDemo
+//  EsimDemoApp.swift
+//  EsimDemo
 //
-//  Created by Swarajmeet Singh on 04/09/25.
+//  Created by Swarajmeet Singh on 05/09/25.
 //
 
 import SwiftUI
 
 @main
-struct eSimDemoApp: App {
+struct EsimDemoApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()

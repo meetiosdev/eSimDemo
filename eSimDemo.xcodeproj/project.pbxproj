@@ -7,39 +7,35 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0FBBCF462E69A85A008FE0F0 /* ESIMUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF3D2E69A85A008FE0F0 /* ESIMUtilities.swift */; };
-		0FBBCF472E69A85A008FE0F0 /* ESIMModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF392E69A85A008FE0F0 /* ESIMModels.swift */; };
-		0FBBCF482E69A85A008FE0F0 /* ESIMQRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF432E69A85A008FE0F0 /* ESIMQRCodeView.swift */; };
-		0FBBCF492E69A85A008FE0F0 /* ESIMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF3B2E69A85A008FE0F0 /* ESIMService.swift */; };
-		0FBBCF4A2E69A85A008FE0F0 /* ESIMViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF3F2E69A85A008FE0F0 /* ESIMViewModel.swift */; };
-		0FBBCF4B2E69A85A008FE0F0 /* ESIMCompatibilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF412E69A85A008FE0F0 /* ESIMCompatibilityView.swift */; };
-		0FBBCF4C2E69A85A008FE0F0 /* ESIMProvisioningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF422E69A85A008FE0F0 /* ESIMProvisioningView.swift */; };
-		0FBBCF4D2E69A85A008FE0F0 /* ESIMStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBCF442E69A85A008FE0F0 /* ESIMStatusView.swift */; };
-		0FC605CA2E699ECF00BBE9F9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0FC605C42E699ECF00BBE9F9 /* Preview Assets.xcassets */; };
-		0FC605CB2E699ECF00BBE9F9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0FC605C62E699ECF00BBE9F9 /* Assets.xcassets */; };
-		0FC605CC2E699ECF00BBE9F9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC605C72E699ECF00BBE9F9 /* ContentView.swift */; };
-		0FC605CD2E699ECF00BBE9F9 /* eSimDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC605C82E699ECF00BBE9F9 /* eSimDemoApp.swift */; };
+		0F9C2E302E6AD0B80025DB7A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9C2E2D2E6AD0B80025DB7A /* ContentView.swift */; };
+		0F9C2E312E6AD0B80025DB7A /* EsimDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9C2E2E2E6AD0B80025DB7A /* EsimDemoApp.swift */; };
+		0F9C2E322E6AD0B80025DB7A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0F9C2E2A2E6AD0B80025DB7A /* Preview Assets.xcassets */; };
+		0F9C2E332E6AD0B80025DB7A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0F9C2E2C2E6AD0B80025DB7A /* Assets.xcassets */; };
+		0F9C2E372E6AD0E70025DB7A /* ESIMManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9C2E352E6AD0E70025DB7A /* ESIMManager.swift */; };
+		0F9C2E382E6AD0E70025DB7A /* iOS_eSIM_Implementation_Guide.md in Resources */ = {isa = PBXBuildFile; fileRef = 0F9C2E362E6AD0E70025DB7A /* iOS_eSIM_Implementation_Guide.md */; };
+		0F9C2E3B2E6AD1060025DB7A /* ESIMResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9C2E3A2E6AD1060025DB7A /* ESIMResponse.swift */; };
+		0F9C2E3F2E6AD2D70025DB7A /* JSONLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9C2E3C2E6AD2D70025DB7A /* JSONLoader.swift */; };
+		0F9C2E402E6AD2D70025DB7A /* sample_esim_data.json in Resources */ = {isa = PBXBuildFile; fileRef = 0F9C2E3D2E6AD2D70025DB7A /* sample_esim_data.json */; };
+		0F9C2E422E6AD5600025DB7A /* DateFormatter+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9C2E412E6AD5600025DB7A /* DateFormatter+Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0FBBCF392E69A85A008FE0F0 /* ESIMModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMModels.swift; sourceTree = "<group>"; };
-		0FBBCF3B2E69A85A008FE0F0 /* ESIMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMService.swift; sourceTree = "<group>"; };
-		0FBBCF3D2E69A85A008FE0F0 /* ESIMUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMUtilities.swift; sourceTree = "<group>"; };
-		0FBBCF3F2E69A85A008FE0F0 /* ESIMViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMViewModel.swift; sourceTree = "<group>"; };
-		0FBBCF412E69A85A008FE0F0 /* ESIMCompatibilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMCompatibilityView.swift; sourceTree = "<group>"; };
-		0FBBCF422E69A85A008FE0F0 /* ESIMProvisioningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMProvisioningView.swift; sourceTree = "<group>"; };
-		0FBBCF432E69A85A008FE0F0 /* ESIMQRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMQRCodeView.swift; sourceTree = "<group>"; };
-		0FBBCF442E69A85A008FE0F0 /* ESIMStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMStatusView.swift; sourceTree = "<group>"; };
-		0FBBCF4E2E69AA16008FE0F0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		0FC605B32E699E5400BBE9F9 /* eSimDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = eSimDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0FC605C42E699ECF00BBE9F9 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		0FC605C62E699ECF00BBE9F9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		0FC605C72E699ECF00BBE9F9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		0FC605C82E699ECF00BBE9F9 /* eSimDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = eSimDemoApp.swift; sourceTree = "<group>"; };
+		0F9C2E192E6AD0AC0025DB7A /* EsimDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EsimDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0F9C2E2A2E6AD0B80025DB7A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		0F9C2E2C2E6AD0B80025DB7A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0F9C2E2D2E6AD0B80025DB7A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		0F9C2E2E2E6AD0B80025DB7A /* EsimDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsimDemoApp.swift; sourceTree = "<group>"; };
+		0F9C2E352E6AD0E70025DB7A /* ESIMManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMManager.swift; sourceTree = "<group>"; };
+		0F9C2E362E6AD0E70025DB7A /* iOS_eSIM_Implementation_Guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = iOS_eSIM_Implementation_Guide.md; sourceTree = "<group>"; };
+		0F9C2E3A2E6AD1060025DB7A /* ESIMResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESIMResponse.swift; sourceTree = "<group>"; };
+		0F9C2E3C2E6AD2D70025DB7A /* JSONLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONLoader.swift; sourceTree = "<group>"; };
+		0F9C2E3D2E6AD2D70025DB7A /* sample_esim_data.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = sample_esim_data.json; sourceTree = "<group>"; };
+		0F9C2E412E6AD5600025DB7A /* DateFormatter+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatter+Extensions.swift"; sourceTree = "<group>"; };
+		0F9C2E432E6AD6C40025DB7A /* EsimDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EsimDemo.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		0FC605B02E699E5400BBE9F9 /* Frameworks */ = {
+		0F9C2E162E6AD0AC0025DB7A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -49,180 +45,160 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0FBBCF3A2E69A85A008FE0F0 /* Models */ = {
+		0F9C2E102E6AD0AC0025DB7A = {
 			isa = PBXGroup;
 			children = (
-				0FBBCF392E69A85A008FE0F0 /* ESIMModels.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		0FBBCF3C2E69A85A008FE0F0 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				0FBBCF3B2E69A85A008FE0F0 /* ESIMService.swift */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
-		0FBBCF3E2E69A85A008FE0F0 /* Utilities */ = {
-			isa = PBXGroup;
-			children = (
-				0FBBCF3D2E69A85A008FE0F0 /* ESIMUtilities.swift */,
-			);
-			path = Utilities;
-			sourceTree = "<group>";
-		};
-		0FBBCF402E69A85A008FE0F0 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				0FBBCF3F2E69A85A008FE0F0 /* ESIMViewModel.swift */,
-			);
-			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		0FBBCF452E69A85A008FE0F0 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				0FBBCF412E69A85A008FE0F0 /* ESIMCompatibilityView.swift */,
-				0FBBCF422E69A85A008FE0F0 /* ESIMProvisioningView.swift */,
-				0FBBCF432E69A85A008FE0F0 /* ESIMQRCodeView.swift */,
-				0FBBCF442E69A85A008FE0F0 /* ESIMStatusView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		0FC605AA2E699E5400BBE9F9 = {
-			isa = PBXGroup;
-			children = (
-				0FC605C92E699ECF00BBE9F9 /* eSimDemo */,
-				0FC605B42E699E5400BBE9F9 /* Products */,
+				0F9C2E2F2E6AD0B80025DB7A /* EsimDemo */,
+				0F9C2E1A2E6AD0AC0025DB7A /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		0FC605B42E699E5400BBE9F9 /* Products */ = {
+		0F9C2E1A2E6AD0AC0025DB7A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0FC605B32E699E5400BBE9F9 /* eSimDemo.app */,
+				0F9C2E192E6AD0AC0025DB7A /* EsimDemo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		0FC605C52E699ECF00BBE9F9 /* Preview Content */ = {
+		0F9C2E2B2E6AD0B80025DB7A /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
-				0FC605C42E699ECF00BBE9F9 /* Preview Assets.xcassets */,
+				0F9C2E2A2E6AD0B80025DB7A /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		0FC605C92E699ECF00BBE9F9 /* eSimDemo */ = {
+		0F9C2E2F2E6AD0B80025DB7A /* EsimDemo */ = {
 			isa = PBXGroup;
 			children = (
-				0FBBCF4E2E69AA16008FE0F0 /* Info.plist */,
-				0FC605C52E699ECF00BBE9F9 /* Preview Content */,
-				0FC605C62E699ECF00BBE9F9 /* Assets.xcassets */,
-				0FC605C72E699ECF00BBE9F9 /* ContentView.swift */,
-				0FC605C82E699ECF00BBE9F9 /* eSimDemoApp.swift */,
-				0FBBCF3A2E69A85A008FE0F0 /* Models */,
-				0FBBCF3C2E69A85A008FE0F0 /* Services */,
-				0FBBCF3E2E69A85A008FE0F0 /* Utilities */,
-				0FBBCF402E69A85A008FE0F0 /* ViewModels */,
-				0FBBCF452E69A85A008FE0F0 /* Views */,
+				0F9C2E432E6AD6C40025DB7A /* EsimDemo.entitlements */,
+				0F9C2E2B2E6AD0B80025DB7A /* Preview Content */,
+				0F9C2E2C2E6AD0B80025DB7A /* Assets.xcassets */,
+				0F9C2E2D2E6AD0B80025DB7A /* ContentView.swift */,
+				0F9C2E2E2E6AD0B80025DB7A /* EsimDemoApp.swift */,
+				0F9C2E412E6AD5600025DB7A /* DateFormatter+Extensions.swift */,
+				0F9C2E3E2E6AD2D70025DB7A /* Json */,
+				0F9C2E392E6AD0F70025DB7A /* ESimModel */,
+				0F9C2E342E6AD0CC0025DB7A /* EsimManager */,
 			);
-			path = eSimDemo;
+			path = EsimDemo;
+			sourceTree = "<group>";
+		};
+		0F9C2E342E6AD0CC0025DB7A /* EsimManager */ = {
+			isa = PBXGroup;
+			children = (
+				0F9C2E352E6AD0E70025DB7A /* ESIMManager.swift */,
+				0F9C2E362E6AD0E70025DB7A /* iOS_eSIM_Implementation_Guide.md */,
+			);
+			path = EsimManager;
+			sourceTree = "<group>";
+		};
+		0F9C2E392E6AD0F70025DB7A /* ESimModel */ = {
+			isa = PBXGroup;
+			children = (
+				0F9C2E3A2E6AD1060025DB7A /* ESIMResponse.swift */,
+			);
+			path = ESimModel;
+			sourceTree = "<group>";
+		};
+		0F9C2E3E2E6AD2D70025DB7A /* Json */ = {
+			isa = PBXGroup;
+			children = (
+				0F9C2E3C2E6AD2D70025DB7A /* JSONLoader.swift */,
+				0F9C2E3D2E6AD2D70025DB7A /* sample_esim_data.json */,
+			);
+			path = Json;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0FC605B22E699E5400BBE9F9 /* eSimDemo */ = {
+		0F9C2E182E6AD0AC0025DB7A /* EsimDemo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0FC605C12E699E5600BBE9F9 /* Build configuration list for PBXNativeTarget "eSimDemo" */;
+			buildConfigurationList = 0F9C2E272E6AD0AD0025DB7A /* Build configuration list for PBXNativeTarget "EsimDemo" */;
 			buildPhases = (
-				0FC605AF2E699E5400BBE9F9 /* Sources */,
-				0FC605B02E699E5400BBE9F9 /* Frameworks */,
-				0FC605B12E699E5400BBE9F9 /* Resources */,
+				0F9C2E152E6AD0AC0025DB7A /* Sources */,
+				0F9C2E162E6AD0AC0025DB7A /* Frameworks */,
+				0F9C2E172E6AD0AC0025DB7A /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = eSimDemo;
+			name = EsimDemo;
 			packageProductDependencies = (
 			);
-			productName = eSimDemo;
-			productReference = 0FC605B32E699E5400BBE9F9 /* eSimDemo.app */;
+			productName = EsimDemo;
+			productReference = 0F9C2E192E6AD0AC0025DB7A /* EsimDemo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		0FC605AB2E699E5400BBE9F9 /* Project object */ = {
+		0F9C2E112E6AD0AC0025DB7A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1610;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
-					0FC605B22E699E5400BBE9F9 = {
+					0F9C2E182E6AD0AC0025DB7A = {
 						CreatedOnToolsVersion = 16.1;
 					};
 				};
 			};
-			buildConfigurationList = 0FC605AE2E699E5400BBE9F9 /* Build configuration list for PBXProject "eSimDemo" */;
+			buildConfigurationList = 0F9C2E142E6AD0AC0025DB7A /* Build configuration list for PBXProject "EsimDemo" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 0FC605AA2E699E5400BBE9F9;
+			mainGroup = 0F9C2E102E6AD0AC0025DB7A;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 0FC605B42E699E5400BBE9F9 /* Products */;
+			productRefGroup = 0F9C2E1A2E6AD0AC0025DB7A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0FC605B22E699E5400BBE9F9 /* eSimDemo */,
+				0F9C2E182E6AD0AC0025DB7A /* EsimDemo */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		0FC605B12E699E5400BBE9F9 /* Resources */ = {
+		0F9C2E172E6AD0AC0025DB7A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0FC605CA2E699ECF00BBE9F9 /* Preview Assets.xcassets in Resources */,
-				0FC605CB2E699ECF00BBE9F9 /* Assets.xcassets in Resources */,
+				0F9C2E322E6AD0B80025DB7A /* Preview Assets.xcassets in Resources */,
+				0F9C2E402E6AD2D70025DB7A /* sample_esim_data.json in Resources */,
+				0F9C2E382E6AD0E70025DB7A /* iOS_eSIM_Implementation_Guide.md in Resources */,
+				0F9C2E332E6AD0B80025DB7A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		0FC605AF2E699E5400BBE9F9 /* Sources */ = {
+		0F9C2E152E6AD0AC0025DB7A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0FC605CC2E699ECF00BBE9F9 /* ContentView.swift in Sources */,
-				0FBBCF462E69A85A008FE0F0 /* ESIMUtilities.swift in Sources */,
-				0FBBCF472E69A85A008FE0F0 /* ESIMModels.swift in Sources */,
-				0FBBCF482E69A85A008FE0F0 /* ESIMQRCodeView.swift in Sources */,
-				0FBBCF492E69A85A008FE0F0 /* ESIMService.swift in Sources */,
-				0FBBCF4A2E69A85A008FE0F0 /* ESIMViewModel.swift in Sources */,
-				0FBBCF4B2E69A85A008FE0F0 /* ESIMCompatibilityView.swift in Sources */,
-				0FBBCF4C2E69A85A008FE0F0 /* ESIMProvisioningView.swift in Sources */,
-				0FBBCF4D2E69A85A008FE0F0 /* ESIMStatusView.swift in Sources */,
-				0FC605CD2E699ECF00BBE9F9 /* eSimDemoApp.swift in Sources */,
+				0F9C2E3F2E6AD2D70025DB7A /* JSONLoader.swift in Sources */,
+				0F9C2E372E6AD0E70025DB7A /* ESIMManager.swift in Sources */,
+				0F9C2E422E6AD5600025DB7A /* DateFormatter+Extensions.swift in Sources */,
+				0F9C2E302E6AD0B80025DB7A /* ContentView.swift in Sources */,
+				0F9C2E3B2E6AD1060025DB7A /* ESIMResponse.swift in Sources */,
+				0F9C2E312E6AD0B80025DB7A /* EsimDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		0FC605BF2E699E5600BBE9F9 /* Debug */ = {
+		0F9C2E252E6AD0AD0025DB7A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -285,7 +261,7 @@
 			};
 			name = Debug;
 		};
-		0FC605C02E699E5600BBE9F9 /* Release */ = {
+		0F9C2E262E6AD0AD0025DB7A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -341,18 +317,18 @@
 			};
 			name = Release;
 		};
-		0FC605C22E699E5600BBE9F9 /* Debug */ = {
+		0F9C2E282E6AD0AD0025DB7A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = EsimDemo/EsimDemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"eSimDemo/Preview Content\"";
-				DEVELOPMENT_TEAM = X3YKR6M53J;
+				DEVELOPMENT_ASSET_PATHS = "\"EsimDemo/Preview Content\"";
+				DEVELOPMENT_TEAM = FDR9P95XA2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = eSimDemo/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -363,7 +339,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.celium.eSimDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.live.Henri;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -371,18 +347,18 @@
 			};
 			name = Debug;
 		};
-		0FC605C32E699E5600BBE9F9 /* Release */ = {
+		0F9C2E292E6AD0AD0025DB7A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = EsimDemo/EsimDemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"eSimDemo/Preview Content\"";
-				DEVELOPMENT_TEAM = X3YKR6M53J;
+				DEVELOPMENT_ASSET_PATHS = "\"EsimDemo/Preview Content\"";
+				DEVELOPMENT_TEAM = FDR9P95XA2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = eSimDemo/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -393,7 +369,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.celium.eSimDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.live.Henri;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -404,25 +380,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0FC605AE2E699E5400BBE9F9 /* Build configuration list for PBXProject "eSimDemo" */ = {
+		0F9C2E142E6AD0AC0025DB7A /* Build configuration list for PBXProject "EsimDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0FC605BF2E699E5600BBE9F9 /* Debug */,
-				0FC605C02E699E5600BBE9F9 /* Release */,
+				0F9C2E252E6AD0AD0025DB7A /* Debug */,
+				0F9C2E262E6AD0AD0025DB7A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0FC605C12E699E5600BBE9F9 /* Build configuration list for PBXNativeTarget "eSimDemo" */ = {
+		0F9C2E272E6AD0AD0025DB7A /* Build configuration list for PBXNativeTarget "EsimDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0FC605C22E699E5600BBE9F9 /* Debug */,
-				0FC605C32E699E5600BBE9F9 /* Release */,
+				0F9C2E282E6AD0AD0025DB7A /* Debug */,
+				0F9C2E292E6AD0AD0025DB7A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 0FC605AB2E699E5400BBE9F9 /* Project object */;
+	rootObject = 0F9C2E112E6AD0AC0025DB7A /* Project object */;
 }

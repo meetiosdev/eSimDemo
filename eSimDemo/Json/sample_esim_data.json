@@ -1,0 +1,23 @@
+{
+    "data": {
+        "results": {
+            "iccid": "19220000000043531",
+            "imsi": 198466787302970,
+            "state": "ERROR",
+            "last_operation_date": 1757059765,
+            "activation_code": "LPA:1$test.esim.com$TN317929528E0101F",
+            "reuse_enabled": true,
+            "cc_required": false,
+            "profile_reuse_policy": {
+                "reuse_type": "SAME_EID_MID",
+                "max_count": "5"
+            },
+            "reuse_remaining_count": 2,
+            "release_date": 1703183676,
+            "eid": "1922000000004353140650363121416117049",
+            "state_message": "The eSIM encountered an error while installing",
+            "last_operation_date_utc": "2025-09-05 08:09:25+00:00",
+            "release_date_utc": "2025-09-05 08:09:25+00:00"
+        }
+    }
+}
