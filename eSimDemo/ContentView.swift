@@ -19,9 +19,50 @@ struct ContentView: View {
         NavigationView {
             VStack(spacing: 20) {
                 if jsonLoader.isLoading {
-                    ProgressView("Loading eSIM data...")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    loadingView
                 } else if let errorMessage = jsonLoader.errorMessage {
+                    errorView(errorMessage)
+                } else if let esimResponse = jsonLoader.esimResponse {
+                    esimContentView(esimResponse)
+                } else {
+                    emptyStateView
+                }
+            }
+            .navigationTitle("eSIM Demo")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Refresh") {
+                        jsonLoader.loadESIMData()
+                    }
+                }
+            }
+            .onAppear {
+                jsonLoader.loadESIMData()
+            }
+            .onChange(of: jsonLoader.esimResponse) {
+                if jsonLoader.esimResponse != nil {
+                    generateQRCode()
+                }
+            }
+            .alert("Installation Result", isPresented: $showInstallationAlert) {
+                Button("OK") { }
+            } message: {
+                if let result = installationResult {
+                    Text("Status: \(result.status.rawValue)\nMessage: \(result.message ?? "No message")")
+                }
+            }
+        }
+    }
+    
+    // MARK: - View Components
+    
+    private var loadingView: some View {
+        ProgressView("Loading eSIM data...")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func errorView(_ errorMessage: String) -> some View {
                     VStack(spacing: 16) {
                         Image(systemName: "exclamationmark.triangle")
                             .font(.system(size: 50))
@@ -38,210 +79,240 @@ struct ContentView: View {
                         .buttonStyle(.borderedProminent)
                     }
                     .padding()
-                } else if let esimResponse = jsonLoader.esimResponse {
+    }
+    
+    private var emptyStateView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "simcard")
+                .font(.system(size: 50))
+                .foregroundColor(.blue)
+            Text("No eSIM Data")
+                .font(.title2)
+                .fontWeight(.bold)
+            Text("Tap 'Load Data' to load eSIM profile information")
+                .multilineTextAlignment(.center)
+                .foregroundColor(.secondary)
+            Button("Load Data") {
+                jsonLoader.loadESIMData()
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding()
+    }
+    
+    private func esimContentView(_ esimResponse: ESIMResponse) -> some View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 16) {
-                            // Header
+                headerView(esimResponse)
+                supportStatusView()
+                qrCodeSection()
+                lpaParsingSection(esimResponse)
+                profileDetailsSection(esimResponse)
+                installButtonSection()
+            }
+            .padding()
+        }
+    }
+    
+    private func headerView(_ esimResponse: ESIMResponse) -> some View {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("eSIM Profile Details")
-                                    .font(.title)
+            Text("eSIM Profile")
+                .font(.largeTitle)
                                     .fontWeight(.bold)
                                 
+            Text("Activation Code: \(esimResponse.response.eSim.activationCode)")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .textSelection(.enabled)
+        }
+        .padding(.bottom, 8)
+    }
+    
+    private func supportStatusView() -> some View {
+        VStack(alignment: .leading, spacing: 8) {
                                 HStack {
-                                    Circle()
-                                        .fill(esimResponse.response.eSim.state == "ERROR" ? Color.red : Color.green)
-                                        .frame(width: 12, height: 12)
-                                    Text(esimResponse.response.eSim.state)
+                Image(systemName: ESIMManager.shared.isESIMSupported() ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    .foregroundColor(ESIMManager.shared.isESIMSupported() ? .green : .red)
+                Text("eSIM Support")
                                         .font(.headline)
-                                        .foregroundColor(esimResponse.response.eSim.state == "ERROR" ? .red : .green)
-                                }
+                Spacer()
+                Text(ESIMManager.shared.isESIMSupported() ? "Supported" : "Not Supported")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            if !ESIMManager.shared.isESIMSupported() {
+                Text("This device may not support eSIM or requires additional entitlements.")
+                    .font(.caption)
+                    .foregroundColor(.orange)
+            }
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+    }
+    
+    private func qrCodeSection() -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("QR Code")
+                    .font(.headline)
+                Spacer()
+                Button(action: generateQRCode) {
+                    HStack {
+                        Image(systemName: "qrcode")
+                        Text(qrCodeImage == nil ? "Generate QR Code" : "Regenerate QR Code")
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
+                }
+            }
+            
+            if let qrImage = qrCodeImage {
+                VStack(spacing: 12) {
+                    Image(uiImage: qrImage)
+                        .interpolation(.none)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .shadow(radius: 2)
+                    
+                    HStack(spacing: 16) {
+                        Button(action: generateQRCode) {
+                            HStack {
+                                Image(systemName: "qrcode")
+                                Text("Regenerate")
                             }
-                            .padding(.bottom)
-                            
-                            // Basic Information
-                            DetailSection(title: "Basic Information") {
-                                DetailRow(label: "ICCID", value: esimResponse.response.eSim.iccid)
-                                DetailRow(label: "IMSI", value: String(esimResponse.response.eSim.imsi))
-                                DetailRow(label: "EID", value: esimResponse.response.eSim.eid)
-                                DetailRow(label: "Activation Code", value: esimResponse.response.eSim.activationCode)
+                            .font(.subheadline)
+                            .foregroundColor(.blue)
+                        }
+                        
+                        Button(action: shareQRCode) {
+                            HStack {
+                                Image(systemName: "square.and.arrow.up")
+                                Text("Share")
                             }
-                            
-                            // Status Information
-                            DetailSection(title: "Status") {
-                                DetailRow(label: "State Message", value: esimResponse.response.eSim.stateMessage)
-                                DetailRow(label: "Last Operation", value: esimResponse.response.eSim.lastOperationDate.toHumanReadableDate)
-                                DetailRow(label: "Release Date", value: esimResponse.response.eSim.releaseDate.toHumanReadableDate)
-                            }
-                            
-                            // Configuration
-                            DetailSection(title: "Configuration") {
-                                DetailRow(label: "Reuse Enabled", value: esimResponse.response.eSim.reuseEnabled ? "Yes" : "No")
-                                DetailRow(label: "CC Required", value: esimResponse.response.eSim.ccRequired ? "Yes" : "No")
-                                DetailRow(label: "Reuse Remaining", value: String(esimResponse.response.eSim.reuseRemainingCount))
-                            }
+                            .font(.subheadline)
+                            .foregroundColor(.green)
+                        }
+                    }
+                }
+            } else {
+                VStack(spacing: 8) {
+                    Image(systemName: "qrcode")
+                        .font(.system(size: 40))
+                        .foregroundColor(.gray)
+                    Text("Tap 'Generate QR Code' to create a QR code for this eSIM profile")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 1)
+    }
+    
+    private func lpaParsingSection(_ esimResponse: ESIMResponse) -> some View {
+        Group {
+            if let lpaComponents = parseActivationCode(esimResponse.response.eSim.activationCode) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("LPA Components")
+                        .font(.headline)
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(lpaComponents.displayString)
+                            .font(.system(.body, design: .monospaced))
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8)
+                    }
+                }
+                .padding()
+                .background(Color(.systemBackground))
+                .cornerRadius(12)
+                .shadow(radius: 1)
+            }
+        }
+    }
+    
+    private func profileDetailsSection(_ esimResponse: ESIMResponse) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Profile Details")
+                .font(.headline)
+            
+            // Basic Info
+            DetailSection(title: "Basic Information") {
+                DetailRow(label: "Activation Code", value: esimResponse.response.eSim.activationCode)
+                DetailRow(label: "ICCID", value: esimResponse.response.eSim.iccid)
+                DetailRow(label: "IMSI", value: String(esimResponse.response.eSim.imsi))
+                DetailRow(label: "State", value: esimResponse.response.eSim.state)
+            }
                             
                             // Reuse Policy
                             DetailSection(title: "Reuse Policy") {
                                 DetailRow(label: "Reuse Type", value: esimResponse.response.eSim.profileReusePolicy.reuseType)
                                 DetailRow(label: "Max Count", value: esimResponse.response.eSim.profileReusePolicy.maxCount)
                             }
-                            
-                            // eSIM Support Debug Info
-                            DetailSection(title: "eSIM Support Debug") {
-                                let supportInfo = ESIMManager.shared.getESIMSupportInfo()
-                                DetailRow(label: "API Supported", value: (supportInfo["apiSupported"] as? Bool) == true ? "Yes" : "No")
-                                DetailRow(label: "Device Capable", value: (supportInfo["deviceCapable"] as? Bool) == true ? "Yes" : "No")
-                                DetailRow(label: "Overall Supported", value: (supportInfo["overallSupported"] as? Bool) == true ? "Yes" : "No")
-                                DetailRow(label: "Entitlements", value: supportInfo["entitlementsStatus"] as? String ?? "Unknown")
-                                DetailRow(label: "iOS Version", value: supportInfo["iosVersion"] as? String ?? "Unknown")
-                                DetailRow(label: "Device Model", value: supportInfo["deviceModel"] as? String ?? "Unknown")
-                            }
-                            
-                            // QR Code Section
-                            DetailSection(title: "QR Code") {
-                                VStack(spacing: 12) {
-                                    if let qrImage = qrCodeImage {
-                                        Image(uiImage: qrImage)
-                                            .interpolation(.none)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 200, height: 200)
-                                            .background(Color.white)
-                                            .cornerRadius(8)
-                                            .shadow(radius: 4)
-                                    } else {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.gray.opacity(0.3))
-                                            .frame(width: 200, height: 200)
-                                            .overlay(
-                                                VStack {
-                                                    Image(systemName: "qrcode")
-                                                        .font(.system(size: 40))
-                                                        .foregroundColor(.gray)
-                                                    Text("QR Code")
-                                                        .font(.caption)
-                                                        .foregroundColor(.gray)
-                                                }
-                                            )
-                                    }
-                                    
-                                    HStack(spacing: 16) {
-                                        Button(action: generateQRCode) {
-                                            HStack {
-                                                Image(systemName: "qrcode")
-                                                Text(qrCodeImage == nil ? "Generate QR Code" : "Regenerate QR Code")
-                                            }
-                                            .font(.subheadline)
-                                            .foregroundColor(.blue)
-                                        }
-                                        
-                                        if qrCodeImage != nil {
-                                            Button(action: shareQRCode) {
-                                                HStack {
-                                                    Image(systemName: "square.and.arrow.up")
-                                                    Text("Share")
-                                                }
-                                                .font(.subheadline)
-                                                .foregroundColor(.green)
-                                            }
-                                        }
-                                    }
-                                    
-                                    if let lpaComponents = parseActivationCode(esimResponse.response.eSim.activationCode) {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text("LPA Components:")
-                                                .font(.caption)
-                                                .fontWeight(.medium)
-                                                .foregroundColor(.secondary)
-                                            
-                                            if let smdp = lpaComponents.smdp {
-                                                Text("SMDP: \(smdp)")
-                                                    .font(.caption)
-                                                    .foregroundColor(.primary)
-                                            }
-                                            
-                                            if let token = lpaComponents.token {
-                                                Text("Token: \(token)")
-                                                    .font(.caption)
-                                                    .foregroundColor(.primary)
-                                            }
-                                        }
-                                        .padding(.top, 4)
-                                    }
-                                }
-                            }
+            
+            // eSIM Support Debug Info
+            DetailSection(title: "eSIM Support Debug") {
+                let supportInfo = ESIMManager.shared.getESIMSupportInfo()
+                DetailRow(label: "API Supported", value: supportInfo.apiSupported ? "Yes" : "No")
+                DetailRow(label: "Device Capable", value: supportInfo.deviceCapable ? "Yes" : "No")
+                DetailRow(label: "Overall Supported", value: supportInfo.overallSupported ? "Yes" : "No")
+                DetailRow(label: "Entitlements", value: supportInfo.entitlementsStatus)
+                DetailRow(label: "iOS Version", value: supportInfo.iosVersion)
+                DetailRow(label: "Device Model", value: supportInfo.deviceModel)
+                DetailRow(label: "Entitlements Issue", value: supportInfo.entitlementsIssue ? "Yes" : "No")
+            }
                         }
                         .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 1)
+    }
                         
-                        // eSIM Install Button
+    private func installButtonSection() -> some View {
                         VStack(spacing: 12) {
-                            Divider()
-                                .padding(.horizontal)
-                            
                             Button(action: installESIM) {
                                 HStack {
                                     if isInstalling {
                                         ProgressView()
                                             .scaleEffect(0.8)
-                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                     } else {
-                                        Image(systemName: "simcard.fill")
+                        Image(systemName: "plus.circle.fill")
                                     }
-                                    Text(isInstalling ? "Installing eSIM..." : "Install eSIM")
-                                        .fontWeight(.semibold)
+                    Text(isInstalling ? "Installing eSIM..." : "Install eSIM Profile")
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(esimResponse.response.eSim.state == "ERROR" ? Color.red : Color.blue)
+                .background(ESIMManager.shared.isESIMSupported() ? Color.blue : Color.gray)
                                 .foregroundColor(.white)
                                 .cornerRadius(12)
-                            }
-                            .disabled(isInstalling || esimResponse.response.eSim.activationCode.isEmpty)
-                            .padding(.horizontal)
-                        }
-                    }
-                } else {
-                    VStack(spacing: 16) {
-                        Image(systemName: "simcard")
-                            .font(.system(size: 50))
-                            .foregroundColor(.blue)
-                        Text("eSIM Demo")
-                            .font(.title)
-                            .fontWeight(.bold)
-                        Text("Tap the button below to load eSIM data")
-                            .foregroundColor(.secondary)
-                        Button("Load eSIM Data") {
-                            jsonLoader.loadESIMData()
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
             }
-            .navigationTitle("eSIM Demo")
-            .onAppear {
-                // Auto-load data when view appears
-                jsonLoader.loadESIMData()
-            }
-            .onChange(of: jsonLoader.esimResponse) { _ in
-                // Auto-generate QR code when eSIM data is loaded
-                if jsonLoader.esimResponse != nil {
-                    generateQRCode()
-                }
-            }
-            .alert("eSIM Installation", isPresented: $showInstallationAlert) {
-                Button("OK") {
-                    installationResult = nil
-                }
-            } message: {
-                if let result = installationResult {
-                    Text(installationMessage(for: result))
-                }
+            .disabled(isInstalling || !ESIMManager.shared.isESIMSupported())
+            
+            if !ESIMManager.shared.isESIMSupported() {
+                Text("eSIM installation is not supported on this device")
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .multilineTextAlignment(.center)
             }
         }
+        .padding()
     }
     
     // MARK: - eSIM Installation
+    
     private func installESIM() {
         guard let esimResponse = jsonLoader.esimResponse else { return }
         
@@ -258,27 +329,27 @@ struct ContentView: View {
     }
     
     // MARK: - QR Code Generation
+    
     private func generateQRCode() {
         guard let esimResponse = jsonLoader.esimResponse else { return }
         
-        let activationCode = esimResponse.response.eSim.activationCode
-        print("ContentView: Generating QR code for activation code: \(activationCode)")
-        
-        if let qrImage = ESIMManager.shared.generateESIMQRCode(activationCode: activationCode, scale: 8) {
+        if let qrImage = ESIMManager.shared.generateESIMQRCode(
+            activationCode: esimResponse.response.eSim.activationCode,
+            scale: 10
+        ) {
             qrCodeImage = qrImage
-            print("ContentView: QR code generated successfully")
-        } else {
-            print("ContentView: Failed to generate QR code")
         }
     }
     
     // MARK: - LPA Parsing
+    
     private func parseActivationCode(_ activationCode: String) -> LPAComponents? {
         let lpaComponents = ESIMManager.shared.parseLPA(activationCode)
         return lpaComponents.isValid ? lpaComponents : nil
     }
     
     // MARK: - QR Code Sharing
+    
     private func shareQRCode() {
         guard let qrImage = qrCodeImage,
               let esimResponse = jsonLoader.esimResponse else { return }
@@ -291,45 +362,14 @@ struct ContentView: View {
             applicationActivities: nil
         )
         
-        // For iPad
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
-            activityViewController.popoverPresentationController?.sourceView = window
-            activityViewController.popoverPresentationController?.sourceRect = CGRect(x: window.bounds.midX, y: window.bounds.midY, width: 0, height: 0)
-        }
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first,
-           let rootViewController = window.rootViewController {
-            rootViewController.present(activityViewController, animated: true)
-        }
-    }
-    
-    private func installationMessage(for result: ESIMInstallationResult) -> String {
-        switch result.status {
-        case .success:
-            return "✅ eSIM installed successfully!\n\n\(result.message ?? "Installation completed.")"
-        case .failure:
-            return "❌ Installation failed!\n\n\(result.message ?? "Unknown error occurred.")"
-        case .userCancelled:
-            return "⚠️ Installation cancelled by user.\n\n\(result.message ?? "User cancelled the installation.")"
-        case .notSupportedOrPermitted:
-            return "❌ eSIM not supported!\n\n\(result.message ?? "eSIM functionality is not available on this device.")"
-        case .invalidActivationCode:
-            return "❌ Invalid activation code!\n\n\(result.message ?? "The provided activation code is invalid.")"
-        case .esimDisabledOrUnavailable:
-            return "❌ eSIM unavailable!\n\n\(result.message ?? "eSIM is disabled or unavailable.")"
-        case .networkError:
-            return "❌ Network error!\n\n\(result.message ?? "Please check your internet connection.")"
-        case .storageFull:
-            return "❌ Storage full!\n\n\(result.message ?? "Device storage is full.")"
-        case .timeout:
-            return "❌ Installation timeout!\n\n\(result.message ?? "Installation took too long to complete.")"
-        case .unknownError:
-            return "❌ Unknown error!\n\n\(result.message ?? "An unexpected error occurred.")"
+            window.rootViewController?.present(activityViewController, animated: true)
         }
     }
 }
+
+// MARK: - Detail Components
 
 struct DetailSection<Content: View>: View {
     let title: String
@@ -343,15 +383,11 @@ struct DetailSection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.headline)
+                .font(.subheadline)
+                .fontWeight(.semibold)
                 .foregroundColor(.primary)
             
-            VStack(spacing: 4) {
                 content
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(8)
         }
     }
 }
@@ -361,19 +397,15 @@ struct DetailRow: View {
     let value: String
     
     var body: some View {
-        HStack(alignment: .top) {
-            Text(label + ":")
-                .font(.subheadline)
-                .fontWeight(.medium)
+        HStack {
+            Text(label)
+                .font(.caption)
                 .foregroundColor(.secondary)
-                .frame(width: 120, alignment: .leading)
-            
-            Text(value)
-                .font(.subheadline)
-                .foregroundColor(.primary)
-                .multilineTextAlignment(.trailing)
-            
             Spacer()
+            Text(value)
+                .font(.caption)
+                .fontWeight(.medium)
+                .textSelection(.enabled)
         }
     }
 }
@@ -381,5 +413,3 @@ struct DetailRow: View {
 #Preview {
     ContentView()
 }
-
-//com.apple.developer.coretelephony.sim-inserted

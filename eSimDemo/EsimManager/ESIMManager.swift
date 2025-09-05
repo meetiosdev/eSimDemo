@@ -1,6 +1,6 @@
 //
 //  ESIMManager.swift
-//  Flutter Esim Internal
+//  EsimDemo
 //
 //  Created for iOS eSIM management
 //  Requires iOS 12.0+ and proper entitlements
@@ -11,9 +11,12 @@ import CoreTelephony
 import UIKit
 import CoreImage
 import CoreImage.CIFilterBuiltins
+import os.log
 
-// MARK: - LPA Components Structure
-public struct LPAComponents {
+// MARK: - Data Models
+
+/// Represents parsed LPA (Local Profile Assistant) activation code components
+public struct LPAComponents: Equatable {
     public let raw: String
     public let smdp: String?
     public let token: String?
@@ -39,8 +42,8 @@ public struct LPAComponents {
     }
 }
 
-// MARK: - eSIM Installation Status Enum
-public enum ESIMInstallationStatus: String, CaseIterable {
+/// Represents the status of eSIM installation operations
+public enum ESIMInstallationStatus: String, CaseIterable, Equatable {
     case success = "success"
     case failure = "failure"
     case userCancelled = "userCancelled"
@@ -53,68 +56,170 @@ public enum ESIMInstallationStatus: String, CaseIterable {
     case timeout = "timeout"
 }
 
-// MARK: - eSIM Installation Result
-public struct ESIMInstallationResult {
+/// Represents the result of an eSIM installation operation
+public struct ESIMInstallationResult: Equatable {
     public let status: ESIMInstallationStatus
     public let message: String?
     public let errorCode: String?
     public let nativeException: String?
+    public let timestamp: Date
     
-    public init(status: ESIMInstallationStatus, message: String? = nil, errorCode: String? = nil, nativeException: String? = nil) {
+    public init(
+        status: ESIMInstallationStatus,
+        message: String? = nil,
+        errorCode: String? = nil,
+        nativeException: String? = nil
+    ) {
         self.status = status
         self.message = message
         self.errorCode = errorCode
         self.nativeException = nativeException
+        self.timestamp = Date()
     }
 }
 
-// MARK: - eSIM Manager Protocol
+/// Represents detailed eSIM support information
+public struct ESIMSupportInfo: Equatable {
+    public let apiSupported: Bool
+    public let deviceCapable: Bool
+    public let overallSupported: Bool
+    public let iosVersion: String
+    public let deviceModel: String
+    public let entitlementsStatus: String
+    public let entitlementsIssue: Bool
+    
+    public init(
+        apiSupported: Bool,
+        deviceCapable: Bool,
+        overallSupported: Bool,
+        iosVersion: String,
+        deviceModel: String,
+        entitlementsStatus: String,
+        entitlementsIssue: Bool
+    ) {
+        self.apiSupported = apiSupported
+        self.deviceCapable = deviceCapable
+        self.overallSupported = overallSupported
+        self.iosVersion = iosVersion
+        self.deviceModel = deviceModel
+        self.entitlementsStatus = entitlementsStatus
+        self.entitlementsIssue = entitlementsIssue
+    }
+}
+
+// MARK: - Delegate Protocol
+
+/// Delegate protocol for eSIM manager events
 public protocol ESIMManagerDelegate: AnyObject {
     func esimManager(_ manager: ESIMManager, didCompleteInstallationWith result: ESIMInstallationResult)
     func esimManager(_ manager: ESIMManager, didFailWith error: Error)
+    func esimManager(_ manager: ESIMManager, didUpdateSupportInfo info: ESIMSupportInfo)
 }
 
-// MARK: - eSIM Manager Class
-public class ESIMManager: NSObject {
+// MARK: - Main Manager Class
+
+/// A comprehensive eSIM manager for iOS applications
+/// Handles eSIM installation, QR code generation, LPA parsing, and device compatibility
+@available(iOS 12.0, *)
+public final class ESIMManager: NSObject {
+    
+    // MARK: - Singleton
+    
+    public static let shared = ESIMManager()
     
     // MARK: - Properties
-    public static let shared = ESIMManager()
+    
+    /// Delegate for eSIM manager events
     public weak var delegate: ESIMManagerDelegate?
     
+    /// Core Telephony plan provisioning instance
     private let planProvisioning = CTCellularPlanProvisioning()
+    
+    /// Network info instance for carrier monitoring
+    private let networkInfo = CTTelephonyNetworkInfo()
+    
+    /// Serial queue for thread-safe operations
+    private let operationQueue = DispatchQueue(label: "com.esimmanager.operations", qos: .userInitiated)
+    
+    /// Concurrent queue for QR code generation
+    private let qrCodeQueue = DispatchQueue(label: "com.esimmanager.qrcode", qos: .userInitiated, attributes: .concurrent)
+    
+    /// Current installation completion handler
     private var currentInstallationCompletion: ((ESIMInstallationResult) -> Void)?
     
+    /// Logger for debugging and monitoring
+    private let logger = Logger(subsystem: "com.esimmanager", category: "ESIMManager")
+    
+    /// Cached support info to avoid repeated calculations
+    private var cachedSupportInfo: ESIMSupportInfo?
+    
+    /// Cached QR code images to avoid regeneration
+    private let qrCodeCache = NSCache<NSString, UIImage>()
+    
     // MARK: - Initialization
+    
     private override init() {
         super.init()
+        setupQRCodeCache()
+        setupNetworkMonitoring()
+        logger.info("ESIMManager initialized")
     }
     
-    // MARK: - Public Methods
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+        logger.info("ESIMManager deallocated")
+    }
+    
+    // MARK: - Setup Methods
+    
+    /// Configure QR code cache settings
+    private func setupQRCodeCache() {
+        qrCodeCache.countLimit = 10
+        qrCodeCache.totalCostLimit = 5 * 1024 * 1024 // 5MB
+    }
+    
+    /// Setup network monitoring for carrier changes
+    private func setupNetworkMonitoring() {
+        // Note: CTCarrierDidUpdate notification is not available in public API
+        // This is a placeholder for future implementation when proper entitlements are available
+        logger.info("Network monitoring setup - requires additional entitlements")
+    }
+    
+    /// Handle carrier information updates
+    @objc private func carrierDidUpdate() {
+        logger.info("Carrier information updated")
+        invalidateCachedSupportInfo()
+        
+        // Notify delegate on main queue
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            let supportInfo = self.getESIMSupportInfo()
+            self.delegate?.esimManager(self, didUpdateSupportInfo: supportInfo)
+        }
+    }
+    
+    /// Invalidate cached support information
+    private func invalidateCachedSupportInfo() {
+        operationQueue.async { [weak self] in
+            self?.cachedSupportInfo = nil
+        }
+    }
+    
+    // MARK: - eSIM Support Detection
     
     /// Check if the device supports eSIM functionality
     /// - Returns: Boolean indicating eSIM support
     public func isESIMSupported() -> Bool {
-        guard #available(iOS 12.0, *) else {
-            print("ESIMManager: eSIM functionality requires iOS 12.0 or higher")
-            return false
-        }
-        
         let isSupported = planProvisioning.supportsCellularPlan()
-        print("ESIMManager: eSIM support check - \(isSupported)")
+        logger.info("eSIM support check - \(isSupported)")
         
         // Handle entitlements issue: API returns false even on eSIM-capable devices
-        // when proper entitlements are missing
         if !isSupported {
-            // Check if this is a known eSIM-capable device with iOS 12.0+
             if isDeviceESIMCapable() {
-                print("ESIMManager: API returned false, but device supports eSIM (entitlements issue)")
-                print("ESIMManager: Device is eSIM-capable but lacks proper provisioning entitlements")
-                print("ESIMManager: This is expected behavior for apps without carrier entitlements")
-                // For development/testing purposes, return true
-                // In production, you should handle this case appropriately based on your use case
-                return true
+                logger.info("API returned false, but device supports eSIM (entitlements issue)")
+                return true // For development/testing purposes
             } else {
-                print("ESIMManager: Device does not support eSIM")
+                logger.info("Device does not support eSIM")
                 return false
             }
         }
@@ -125,43 +230,78 @@ public class ESIMManager: NSObject {
     /// Check if the current device is eSIM-capable based on hardware and iOS version
     /// - Returns: Boolean indicating if device hardware supports eSIM
     private func isDeviceESIMCapable() -> Bool {
-        // Check iOS version
-        guard #available(iOS 12.0, *) else {
-            print("ESIMManager: eSIM requires iOS 12.0 or higher")
-            return false
-        }
-        
-        // Get device model information
         let device = UIDevice.current
         let systemVersion = device.systemVersion
         
         // Parse iOS version
         let versionComponents = systemVersion.components(separatedBy: ".")
         guard let majorVersion = Int(versionComponents.first ?? "0") else {
-            print("ESIMManager: Unable to parse iOS version")
+            logger.error("Unable to parse iOS version")
             return false
         }
         
-        // Check if iOS version is 12.0 or higher
         guard majorVersion >= 12 else {
-            print("ESIMManager: iOS version \(systemVersion) is too old for eSIM support")
+            logger.warning("iOS version \(systemVersion) is too old for eSIM support")
             return false
         }
         
         // Check device model (iPhone XS and newer support eSIM)
         let modelName = device.model
         
-        // iPhone XS, XS Max, XR and newer support eSIM
         if modelName == "iPhone" {
-            // For iPhone models, we assume modern iPhones support eSIM
-            // In a production app, you might want to use more sophisticated device detection
-            print("ESIMManager: iPhone detected with iOS \(systemVersion) - eSIM capable")
+            logger.info("iPhone detected with iOS \(systemVersion) - eSIM capable")
             return true
         }
         
-        print("ESIMManager: Non-iPhone device detected - eSIM not supported")
+        logger.info("Non-iPhone device detected - eSIM not supported")
         return false
     }
+    
+    /// Get detailed eSIM support information including entitlements status
+    /// - Returns: ESIMSupportInfo with detailed support information
+    public func getESIMSupportInfo() -> ESIMSupportInfo {
+        // Return cached info if available
+        if let cached = cachedSupportInfo {
+            return cached
+        }
+        
+        let apiSupported = planProvisioning.supportsCellularPlan()
+        let deviceCapable = isDeviceESIMCapable()
+        let overallSupported = apiSupported || (deviceCapable && !apiSupported)
+        let iosVersion = UIDevice.current.systemVersion
+        let deviceModel = UIDevice.current.model
+        
+        let entitlementsStatus: String
+        let entitlementsIssue: Bool
+        
+        if !apiSupported && deviceCapable {
+            entitlementsStatus = "Missing - API returns false but device supports eSIM"
+            entitlementsIssue = true
+        } else if apiSupported {
+            entitlementsStatus = "Present - API returns true"
+            entitlementsIssue = false
+        } else {
+            entitlementsStatus = "Not applicable - Device does not support eSIM"
+            entitlementsIssue = false
+        }
+        
+        let supportInfo = ESIMSupportInfo(
+            apiSupported: apiSupported,
+            deviceCapable: deviceCapable,
+            overallSupported: overallSupported,
+            iosVersion: iosVersion,
+            deviceModel: deviceModel,
+            entitlementsStatus: entitlementsStatus,
+            entitlementsIssue: entitlementsIssue
+        )
+        
+        // Cache the result
+        cachedSupportInfo = supportInfo
+        
+        return supportInfo
+    }
+    
+    // MARK: - eSIM Installation
     
     /// Install eSIM profile using activation code
     /// - Parameters:
@@ -173,53 +313,48 @@ public class ESIMManager: NSObject {
         confirmationCode: String? = nil,
         completion: @escaping (ESIMInstallationResult) -> Void
     ) {
-        guard #available(iOS 12.0, *) else {
-            let result = ESIMInstallationResult(
-                status: .notSupportedOrPermitted,
-                message: "eSIM functionality requires iOS 12.0 or higher",
-                errorCode: "UNSUPPORTED_OS_VERSION"
-            )
-            completion(result)
-            return
-        }
-        
-        guard isESIMSupported() else {
-            let result = ESIMInstallationResult(
-                status: .esimDisabledOrUnavailable,
-                message: "eSIM is not supported or available on this device",
-                errorCode: "ESIM_NOT_SUPPORTED"
-            )
-            completion(result)
-            return
-        }
-        
-        guard !activationCode.isEmpty else {
-            let result = ESIMInstallationResult(
-                status: .invalidActivationCode,
-                message: "Activation code cannot be empty",
-                errorCode: "INVALID_ACTIVATION_CODE"
-            )
-            completion(result)
-            return
-        }
-        
-        // Store completion handler for delegate pattern
-        currentInstallationCompletion = completion
-        
-        // Create provisioning request
-        let request = CTCellularPlanProvisioningRequest()
-        request.address = activationCode
-        
-        if let confirmationCode = confirmationCode {
-            request.confirmationCode = confirmationCode
-        }
-        
-        print("ESIMManager: Starting eSIM installation with activation code: \(activationCode)")
-        
-        // Start the installation process
-        planProvisioning.addPlan(with: request) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.handleInstallationResult(result, completion: completion)
+        operationQueue.async { [weak self] in
+            guard let self = self else { return }
+            
+            // Validate inputs
+            guard !activationCode.isEmpty else {
+                let result = ESIMInstallationResult(
+                    status: .invalidActivationCode,
+                    message: "Activation code cannot be empty",
+                    errorCode: "INVALID_ACTIVATION_CODE"
+                )
+                DispatchQueue.main.async { completion(result) }
+                return
+            }
+            
+            guard self.isESIMSupported() else {
+                let result = ESIMInstallationResult(
+                    status: .esimDisabledOrUnavailable,
+                    message: "eSIM is not supported or available on this device",
+                    errorCode: "ESIM_NOT_SUPPORTED"
+                )
+                DispatchQueue.main.async { completion(result) }
+                return
+            }
+            
+            // Store completion handler
+            self.currentInstallationCompletion = completion
+            
+            // Create provisioning request
+            let request = CTCellularPlanProvisioningRequest()
+            request.address = activationCode
+            
+            if let confirmationCode = confirmationCode {
+                request.confirmationCode = confirmationCode
+            }
+            
+            self.logger.info("Starting eSIM installation with activation code: \(activationCode)")
+            
+            // Start the installation process
+            self.planProvisioning.addPlan(with: request) { [weak self] result in
+                DispatchQueue.main.async {
+                    self?.handleInstallationResult(result, completion: completion)
+                }
             }
         }
     }
@@ -252,45 +387,45 @@ public class ESIMManager: NSObject {
         }
     }
     
-    // MARK: - Private Methods
-    
+    /// Handle installation result from Core Telephony
     private func handleInstallationResult(
         _ result: CTCellularPlanProvisioningAddPlanResult,
         completion: @escaping (ESIMInstallationResult) -> Void
     ) {
-        var status: ESIMInstallationStatus
-        var message: String?
-        var errorCode: String?
+        let status: ESIMInstallationStatus
+        let message: String?
+        let errorCode: String?
         
         switch result {
         case .success:
             status = .success
             message = "eSIM profile installed successfully"
-            print("ESIMManager: eSIM installation completed successfully")
+            errorCode = nil
+            logger.info("eSIM installation completed successfully")
             
         case .fail:
             status = .failure
             message = "Failed to install eSIM profile"
             errorCode = "ADD_PLAN_FAILED"
-            print("ESIMManager: eSIM installation failed")
+            logger.error("eSIM installation failed")
             
         case .unknown:
             status = .unknownError
             message = "eSIM installation result is unknown"
             errorCode = "ADD_PLAN_UNKNOWN"
-            print("ESIMManager: eSIM installation result unknown")
+            logger.warning("eSIM installation result unknown")
             
         case .cancel:
             status = .userCancelled
             message = "User cancelled eSIM installation"
             errorCode = "USER_CANCELLED"
-            print("ESIMManager: User cancelled eSIM installation")
+            logger.info("User cancelled eSIM installation")
             
         @unknown default:
             status = .unknownError
             message = "Unexpected eSIM installation result: \(result.rawValue)"
             errorCode = "ADD_PLAN_UNEXPECTED"
-            print("ESIMManager: Unexpected eSIM installation result: \(result.rawValue)")
+            logger.error("Unexpected eSIM installation result: \(result.rawValue)")
         }
         
         let installationResult = ESIMInstallationResult(
@@ -302,57 +437,7 @@ public class ESIMManager: NSObject {
         completion(installationResult)
     }
     
-    // MARK: - Utility Methods
-    
-    /// Get detailed eSIM support information including entitlements status
-    /// - Returns: Dictionary with detailed support information
-    public func getESIMSupportInfo() -> [String: Any] {
-        var supportInfo: [String: Any] = [:]
-        
-        // Basic support check
-        let apiSupported = planProvisioning.supportsCellularPlan()
-        supportInfo["apiSupported"] = apiSupported
-        
-        // Device capability check
-        let deviceCapable = isDeviceESIMCapable()
-        supportInfo["deviceCapable"] = deviceCapable
-        
-        // iOS version check
-        let iosVersion = UIDevice.current.systemVersion
-        supportInfo["iosVersion"] = iosVersion
-        
-        // Device model
-        let deviceModel = UIDevice.current.model
-        supportInfo["deviceModel"] = deviceModel
-        
-        // Overall support determination
-        let overallSupported = apiSupported || (deviceCapable && !apiSupported)
-        supportInfo["overallSupported"] = overallSupported
-        
-        // Entitlements status
-        if !apiSupported && deviceCapable {
-            supportInfo["entitlementsStatus"] = "Missing - API returns false but device supports eSIM"
-            supportInfo["entitlementsIssue"] = true
-        } else if apiSupported {
-            supportInfo["entitlementsStatus"] = "Present - API returns true"
-            supportInfo["entitlementsIssue"] = false
-        } else {
-            supportInfo["entitlementsStatus"] = "Not applicable - Device does not support eSIM"
-            supportInfo["entitlementsIssue"] = false
-        }
-        
-        return supportInfo
-    }
-    
-    /// Get current eSIM profiles (if available)
-    /// - Returns: Array of eSIM profile information
-    @available(iOS 12.0, *)
-    public func getCurrentESIMProfiles() -> [String] {
-        // Note: This is a placeholder. Actual implementation would require
-        // additional entitlements and APIs that may not be publicly available
-        print("ESIMManager: Getting current eSIM profiles - requires additional entitlements")
-        return []
-    }
+    // MARK: - LPA Parsing
     
     /// Parse LPA activation code into components
     /// - Parameter lpa: The LPA activation code string
@@ -367,33 +452,60 @@ public class ESIMManager: NSObject {
         return LPAComponents(raw: lpa, smdp: smdp, token: token)
     }
     
+    // MARK: - QR Code Generation
+    
     /// Generate QR code image from string
     /// - Parameters:
     ///   - string: The string to encode in QR code
     ///   - scale: Scale factor for the QR code (default: 10)
     /// - Returns: UIImage containing the QR code, or nil if generation fails
     public func generateQRCode(from string: String, scale: CGFloat = 10) -> UIImage? {
-        let data = Data(string.utf8)
-        let filter = CIFilter.qrCodeGenerator()
-        filter.setValue(data, forKey: "inputMessage")
-        // L, M, Q, H — "M" is a good default for eSIM codes
-        filter.setValue("M", forKey: "inputCorrectionLevel")
-        
-        guard let output = filter.outputImage else { 
-            print("ESIMManager: Failed to generate QR code output image")
-            return nil 
+        // Check cache first
+        let cacheKey = "\(string)_\(scale)" as NSString
+        if let cachedImage = qrCodeCache.object(forKey: cacheKey) {
+            logger.debug("QR code retrieved from cache")
+            return cachedImage
         }
         
-        let transformed = output.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        // Generate QR code on background queue
+        var qrImage: UIImage?
+        let semaphore = DispatchSemaphore(value: 0)
         
-        // Convert CIImage to UIImage
-        let context = CIContext()
-        guard let cgImage = context.createCGImage(transformed, from: transformed.extent) else {
-            print("ESIMManager: Failed to create CGImage from QR code")
-            return nil
+        qrCodeQueue.async {
+            let data = Data(string.utf8)
+            let filter = CIFilter.qrCodeGenerator()
+            filter.setValue(data, forKey: "inputMessage")
+            filter.setValue("M", forKey: "inputCorrectionLevel") // Medium error correction
+            
+            guard let output = filter.outputImage else {
+                self.logger.error("Failed to generate QR code output image")
+                semaphore.signal()
+                return
+            }
+            
+            let transformed = output.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+            
+            // Convert CIImage to UIImage
+            let context = CIContext()
+            guard let cgImage = context.createCGImage(transformed, from: transformed.extent) else {
+                self.logger.error("Failed to create CGImage from QR code")
+                semaphore.signal()
+                return
+            }
+            
+            qrImage = UIImage(cgImage: cgImage)
+            semaphore.signal()
         }
         
-        return UIImage(cgImage: cgImage)
+        semaphore.wait()
+        
+        // Cache the result
+        if let image = qrImage {
+            qrCodeCache.setObject(image, forKey: cacheKey)
+            logger.debug("QR code generated and cached")
+        }
+        
+        return qrImage
     }
     
     /// Generate QR code for eSIM activation
@@ -402,15 +514,16 @@ public class ESIMManager: NSObject {
     ///   - scale: Scale factor for the QR code (default: 10)
     /// - Returns: UIImage containing the QR code, or nil if generation fails
     public func generateESIMQRCode(activationCode: String, scale: CGFloat = 10) -> UIImage? {
-        print("ESIMManager: Generating QR code for activation code: \(activationCode)")
+        logger.info("Generating QR code for activation code: \(activationCode)")
         return generateQRCode(from: activationCode, scale: scale)
     }
+    
+    // MARK: - Validation
     
     /// Validate activation code format
     /// - Parameter activationCode: The activation code to validate
     /// - Returns: Boolean indicating if the format is valid
     public func validateActivationCode(_ activationCode: String) -> Bool {
-        // Basic validation for common eSIM activation code formats
         let patterns = [
             "^LPA:1\\$[^\\$]+\\$[^\\$]+$",  // LPA:1$smdp.example.com$MATCHING_ID
             "^[A-Z0-9]{20,}$",              // Simple alphanumeric codes
@@ -425,9 +538,35 @@ public class ESIMManager: NSObject {
         
         return false
     }
+    
+    // MARK: - Utility Methods
+    
+    /// Get current eSIM profiles (if available)
+    /// - Returns: Array of eSIM profile information
+    public func getCurrentESIMProfiles() -> [String] {
+        // Note: This is a placeholder. Actual implementation would require
+        // additional entitlements and APIs that may not be publicly available
+        logger.info("Getting current eSIM profiles - requires additional entitlements")
+        return []
+    }
+    
+    /// Clear QR code cache
+    public func clearQRCodeCache() {
+        qrCodeCache.removeAllObjects()
+        logger.info("QR code cache cleared")
+    }
+    
+    /// Clear all caches
+    public func clearAllCaches() {
+        clearQRCodeCache()
+        invalidateCachedSupportInfo()
+        logger.info("All caches cleared")
+    }
 }
 
 // MARK: - Error Handling Extension
+
+@available(iOS 12.0, *)
 extension ESIMManager {
     
     /// Handle specific eSIM errors
@@ -449,6 +588,18 @@ extension ESIMManager {
                 message: "eSIM installation timed out",
                 errorCode: "INSTALLATION_TIMEOUT"
             )
+        case -1003: // NSURLErrorCannotFindHost
+            return ESIMInstallationResult(
+                status: .networkError,
+                message: "Cannot connect to carrier server",
+                errorCode: "CANNOT_FIND_HOST"
+            )
+        case -1004: // NSURLErrorCannotConnectToHost
+            return ESIMInstallationResult(
+                status: .networkError,
+                message: "Cannot connect to carrier server",
+                errorCode: "CANNOT_CONNECT_TO_HOST"
+            )
         default:
             return ESIMInstallationResult(
                 status: .unknownError,
@@ -459,7 +610,8 @@ extension ESIMManager {
     }
 }
 
-// MARK: - Usage Example
+// MARK: - Usage Examples
+
 /*
  
  // Example usage with completion handler:
@@ -492,6 +644,24 @@ extension ESIMManager {
          // Handle installation failure
          print("eSIM installation failed: \(error.localizedDescription)")
      }
+     
+     func esimManager(_ manager: ESIMManager, didUpdateSupportInfo info: ESIMSupportInfo) {
+         // Handle support info updates
+         print("eSIM support info updated: \(info.entitlementsStatus)")
+     }
+ }
+ 
+ // Example QR code generation:
+ if let qrImage = ESIMManager.shared.generateESIMQRCode(activationCode: "LPA:1$smdp.example.com$TOKEN") {
+     // Use the QR code image
+     imageView.image = qrImage
+ }
+ 
+ // Example LPA parsing:
+ let lpaComponents = ESIMManager.shared.parseLPA("LPA:1$smdp.example.com$TOKEN")
+ if lpaComponents.isValid {
+     print("SMDP: \(lpaComponents.smdp ?? "")")
+     print("Token: \(lpaComponents.token ?? "")")
  }
  
  */
